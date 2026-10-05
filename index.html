@@ -97,7 +97,7 @@ body {
 .star { fill: #fff8e6; }
 .bird { fill: none; stroke: var(--rail); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 .petal { fill: var(--sakura); }
-.pf { opacity: .92; } .pb { opacity: .7; }
+.pb { opacity: .7; }   /* front petals: opacity attribute, set in render (a class rule would override it) */
 .noteO { fill: #fff; stroke: #fff; stroke-width: 7; stroke-linejoin: round; }
 .n1 { fill: var(--gold); } .n2 { fill: var(--sakura); } .n3 { fill: #75b1ba; }
 .speed, .wind { fill: #fff8ea; }
@@ -766,7 +766,8 @@ function buildBackground() {
   city('cityMid', { cls: 'cityMid', h: [120, 250], w: [60, 130], win: 0.12, ws: 4, gap: 0.3, top: 0.4, rim: 0.45, rw: 3 });
   city('cityNear', { cls: 'cityNear', h: [80, 270], w: [70, 160], win: 0.11, ws: 5, gap: 0.35, top: 0.55, rim: 0.85, rw: 4,
     tanks: true, cool: true, twinkle: true });
-  TWINKLE.forEach(([x, y, s], i) => { TWINKLE[i] = make('rect', { x: r1(x), y: r1(y), width: s, height: r1(s * 1.3), class: 'cityNearWin' }, $('cityNear')); });
+  // twinkling windows: fill only, so the opacity attribute set in render isn't overridden by .cityNearWin's opacity
+  TWINKLE.forEach(([x, y, s], i) => { TWINKLE[i] = make('rect', { x: r1(x), y: r1(y), width: s, height: r1(s * 1.3), style: 'fill:var(--gold)' }, $('cityNear')); });
   // radio mast with aviation light
   const mast = make('g', { transform: 'translate(-470 0)' }, $('cityNear'));
   make('path', { d: 'M-16 770L-3 380H3L16 770ZM-12 640H12M-9 540H9M-6 450H6', class: 'cityNear', style: 'stroke:var(--near)', 'stroke-width': 4 }, mast);
@@ -850,13 +851,13 @@ function buildFx() {
   for (let i = 0; i < 26; i++) {
     const front = i >= 17;
     PETALS.push({
-      el: make('use', { href: '#pPetal', class: front ? 'petal pf' : 'petal pb' }, front ? $('petalsFront') : $('petalsBack')),
+      el: make('use', { href: '#pPetal', class: front ? 'petal' : 'petal pb' }, front ? $('petalsFront') : $('petalsBack')),
       front, x0: rnd(), y0: rr(0, 1100), vy: front ? rr(60, 95) : rr(26, 48), vx: -(front ? rr(40, 75) : rr(16, 34)),
       size: front ? rr(9, 14) : rr(4.5, 7.5), spin: rr(-70, 70), flip: rr(1.2, 2.8), ph: rr(0, TAU), sway: rr(14, 40), calm: i % 3 === 0,
     });
   }
   for (let i = 0; i < 18; i++) {
-    GUST.push({ el: make('use', { href: '#pPetal', class: 'petal pf', visibility: 'hidden' }, $('petalsFront')),
+    GUST.push({ el: make('use', { href: '#pPetal', class: 'petal', opacity: 0.92, visibility: 'hidden' }, $('petalsFront')),
       y: rr(80, 900), d: rr(0, 0.9), sp: rr(0.8, 1.25), size: rr(7, 15), ph: rr(0, TAU), amp: rr(20, 70), spin: rr(300, 700) });
   }
   for (let i = 0; i < 14; i++) {
@@ -873,7 +874,7 @@ function buildFx() {
 }
 
 /* ================= 5. Layout (responsive composition) ================= */
-const L = { vw: 1600, s: 0.95, cx: 0, cy: 0, sunX: 430, sunY: 590, portrait: false, sky: 0, sfx: [0, 0, 0] };
+const L = { vw: 1600, s: 0.95, cx: 0, cy: 0, sunX: 430, sunY: 590, portrait: false, sky: 0, sfx: [0, 0, 0, 1], lift: 1, zx: 0 };
 const charEl = $('char');
 const EXT_L = -198, EXT_TOP = -582, EXT_BOT = 162;        // character extents (char space)
 function layout() {
@@ -890,12 +891,30 @@ function layout() {
   const crateBottom = Math.max(760, Math.min(portrait ? 900 : 838, barTop - 12));
   L.s = Math.min(1, (crateBottom - 24) / (EXT_BOT - EXT_TOP), portrait ? (vw / 2 - 14) / half : 1);
   L.cy = crateBottom - 162 * L.s;
-  L.cx = portrait ? -mid * L.s : -82 * L.s - vw * 0.035;
+  L.cx = portrait ? -(mid + 4) * L.s : -82 * L.s - vw * 0.035;   // portrait: the headstock side has the tighter margin
+  L.zx = portrait ? mid : 0;                               // zoom punch pivot: the crate, or on portrait the silhouette's middle
   // short landscape phones: slide the dog right until the title card clears its head
   const card = document.querySelector('.card').getBoundingClientRect(), u = 1000 / Math.max(1, h);
   const clear = card.right * u - vw / 2 + 12 - (L.cx - 165 * L.s);
   if (!portrait && card.bottom * u > L.cy + EXT_TOP * L.s && clear > 0) L.cx = Math.min(L.cx + clear, vw / 2 - 16 - right * L.s);
-  L.sfx = portrait ? [mid, -672, -6] : [392, -446, -12];
+  // SFX lettering — at its pop overshoot + zoom punch it reaches ≈ ±235 across and 111·size + 30 above its anchor:
+  // right of the rising notes in landscape; on portrait above the head, slid right of the title card if that sky is covered,
+  // else smaller and dropped below it (over the head, manga-style)
+  const cardB = (card.bottom * u - L.cy) / L.s, cardR = (card.right * u - vw / 2 - L.cx) / L.s, xMax = (vw / 2 - L.cx) / L.s;
+  let sfxX = portrait ? mid : Math.min(510, xMax - 235), sfxY = portrait ? -672 : -446, sfxS = 1;
+  if (portrait) {
+    const slid = Math.min(Math.max(mid, cardR + 185), xMax - 185);
+    if (cardB > sfxY - 141 && slid - 175 >= cardR) sfxX = slid;
+    const top = Math.max(-L.cy / L.s, sfxX - 175 < cardR ? cardB : -Infinity) + 8;
+    if (top > sfxY - 141) { sfxS = 0.8; sfxY = top + 111 * sfxS + 30; }
+  }
+  L.sfx = [sfxX, sfxY, portrait ? -6 : -12, sfxS];
+  // rising notes dissolve before the top edge, and in the left column before the title card (landscape phones)
+  const edge = -L.cy / L.s;
+  L.noteCeil = [Math.max(edge, cardR > -440 ? cardB + 25 : -Infinity), edge];
+  // the hop (lift, stretch, zoom punch) raises the ear tips ≈72 above their rest top (≈EXT_TOP − 20):
+  // toned down where the sky above the head is short, so landscape phones don't crop the head
+  L.lift = clamp((L.cy / L.s + EXT_TOP - 20) / 72, 0.25, 1);
   L.sky = portrait ? 120 : 0;                              // wires drop below the title card on phones
   L.sunX = portrait ? vw * 0.24 : vw * 0.27;
   L.sunY = portrait ? 455 : 588;
@@ -1038,7 +1057,7 @@ function render(song) {
   let hopY = 0, sy = 1 - 0.05 * crouch;
   if (big && hopK < 1.4) {
     const air = hopK / 0.5, land = hopK - 0.5;
-    if (air < 1) { hopY = 34 * 4 * air * (1 - air); sy = 1 + 0.05 * (1 - air); }
+    if (air < 1) { hopY = 34 * L.lift * 4 * air * (1 - air); sy = 1 + 0.05 * L.lift * (1 - air); }
     else sy = 1 - 0.075 * Math.exp(-land * 7) * Math.cos(land * 9);
   }
   set(R.dog, 'transform', `translate(0 ${r2(-hopY)}) scale(${(1 + (1 - sy) * 0.6).toFixed(4)} ${sy.toFixed(4)})`);
@@ -1171,11 +1190,11 @@ function render(song) {
     if (!(k % EPB === 0 || hash(k * 3.1) < 0.34 + bonus)) continue;
     const slot = k % NOTES.length, n = NOTES[slot];
     used[slot] = true;
-    const side = hash(k) < 0.5 ? -1 : 1, p = age / 2.8;
+    const side = !L.portrait && hash(k) < 0.5 ? -1 : 1, p = age / 2.8;   // portrait: no room left of the guitar
     const x = (side < 0 ? -218 - age * 64 : 236 + age * 52) + Math.sin(age * 3 + k) * 14;
     const y = (side < 0 ? -176 : -372) - age * 112 - easeOut(Math.min(1, age * 2)) * 40;
     const pop = age < 0.25 ? easeOut(age / 0.25) * (1 + 0.25 * Math.sin((age / 0.25) * Math.PI)) : 1;
-    const op = Math.min(1, age * 8) * (1 - smooth(clamp((p - 0.65) / 0.35, 0, 1)));
+    const op = Math.min(1, age * 8) * (1 - smooth(clamp((p - 0.65) / 0.35, 0, 1))) * smooth(clamp((y - L.noteCeil[side < 0 ? 0 : 1]) / 60, 0, 1));
     set(n.el, 'transform', `translate(${r1(x)} ${r1(y)}) rotate(${r1(Math.sin(age * 2.4 + k) * 16)}) scale(${r2(pop * (1.05 + hash(k + 5) * 0.45))})`);
     set(n.el, 'opacity', r2(op));
     if (!n.on) { setVis(n.el, true); n.on = true; }
@@ -1185,9 +1204,9 @@ function render(song) {
   // anime moments: focus lines, flash, zoom punch, sparkle burst, glint, SFX lettering, wind
   const focus = big ? Math.max(hopK < 1.4 ? (hopK < 0.05 ? hopK / 0.05 : 1 - smooth((hopK - 0.05) / 1.35)) * 0.9 : 0,
     glintK < 1.2 ? Math.sin(Math.PI * clamp(glintK / 1.2, 0, 1)) * 0.35 : 0) : 0;
-  const zoom = big && hopK < 0.8 ? 0.05 * Math.sin((Math.PI * hopK) / 0.8) : 0;
+  const zoom = big && hopK < 0.8 ? 0.05 * L.lift * Math.sin((Math.PI * hopK) / 0.8) : 0;
   const S = L.s * (1 + zoom);
-  set(charEl, 'transform', `translate(${r1(L.cx)} ${r1(L.cy + 162 * (L.s - S))}) scale(${S.toFixed(4)})`);
+  set(charEl, 'transform', `translate(${r1(L.cx + L.zx * (L.s - S))} ${r1(L.cy + 162 * (L.s - S))}) scale(${S.toFixed(4)})`);
   set(R.speed, 'opacity', r2(focus));
   if (focus > 0) set(R.speed, 'transform', `rotate(${r2((hash(Math.floor(m * 10)) - 0.5) * 3)} ${r1(L.hx)} ${r1(L.hy)})`);
   const flash = hopK < 0.4 ? 0.3 * (1 - hopK / 0.4) : glintK > 0.1 && glintK < 0.5 ? 0.14 * Math.sin((Math.PI * (glintK - 0.1)) / 0.4) : 0;
@@ -1212,7 +1231,7 @@ function render(song) {
   setVis(R.sfx, sfxOn);
   if (sfxOn) {
     const pop = hopK < 0.3 ? easeOut(hopK / 0.3) * (1 + 0.35 * Math.sin(Math.PI * hopK / 0.3)) : 1;
-    set(R.sfx, 'transform', `translate(${r1(L.sfx[0])} ${r1(L.sfx[1] - (big ? hopK * 14 : 0))}) rotate(${L.sfx[2]}) scale(${r2(Math.max(0.01, pop))})`);
+    set(R.sfx, 'transform', `translate(${r1(L.sfx[0])} ${r1(L.sfx[1] - (big ? hopK * 14 : 0))}) rotate(${L.sfx[2]}) scale(${r2(Math.max(0.01, pop * L.sfx[3]))})`);
     set(R.sfx, 'opacity', r2(1 - smooth(clamp((hopK - 1.4) / 0.5, 0, 1))));
   }
   // sakura gust: wind streaks race across, a burst of petals rides them
@@ -1284,7 +1303,7 @@ function render(song) {
 /* ================= 7. Audio — Karplus–Strong plucked strings ================= */
 const LOOKAHEAD = 0.15, MASTER = 0.9, FRAME = 0.016;
 const audio = { ctx: null, master: null, down: null, up: null, bufs: new Map(), jobs: [], voices: [], last: [],
-  on: false, nextK: 0, timer: 0, t0: 0, s0: 0 };
+  on: false, live: false, nextK: 0, minK: 0, timer: 0, t0: 0, s0: 0 };
 const midiHz = m => 440 * 2 ** ((m - 69) / 12);
 
 // generators: rendered in slices by pumpJobs(), so building the samples never stalls a frame
@@ -1411,10 +1430,11 @@ function scheduleAudio(song) {                             // look-ahead schedul
 function audioWake() {                                     // (re)start output in sync with the current beat
   const { ctx } = audio;
   clearTimeout(audio.timer);
-  audio.nextK = firstEventFrom(song);
+  audio.nextK = Math.max(firstEventFrom(song), audio.minK);   // never replay a stroke that already sounded before sleep
+  audio.live = true;
   ctx.resume().then(() => {
     if (!audio.on || !playing) return;
-    audio.nextK = firstEventFrom(song);
+    audio.nextK = Math.max(audio.nextK, firstEventFrom(song));    // a frame may already have scheduled from nextK
     anchorAudio();
     const t = ctx.currentTime;
     audio.master.gain.cancelScheduledValues(t);
@@ -1425,6 +1445,9 @@ function audioSleep() {                                    // drop not-yet-start
   const { ctx } = audio;
   if (!ctx) return;
   const t = ctx.currentTime;
+  // audio runs ahead of the picture by the output latency: remember which strokes were already heard
+  if (audio.live && ctx.state === 'running') audio.minK = Math.min(audio.nextK, firstEventFrom(audio.s0 + (t - audio.t0)));
+  audio.live = false;
   for (const v of audio.voices.slice()) if (v.start > t) v.src.stop();
   audio.master.gain.cancelScheduledValues(t);
   audio.master.gain.setTargetAtTime(0, t, 0.08);
@@ -1481,8 +1504,11 @@ function toggleSound() {
   }
   syncUI();
 }
-playBtn.addEventListener('click', togglePlay);
-soundBtn.addEventListener('click', toggleSound);
+// a mouse/touch click (detail > 0) drops focus, so Space keeps meaning play/pause instead of re-pressing «Звук»;
+// keyboard activation (detail 0) keeps focus and native button behaviour
+const onPress = (btn, fn) => btn.addEventListener('click', e => { fn(); if (e.detail) btn.blur(); });
+onPress(playBtn, togglePlay);
+onPress(soundBtn, toggleSound);
 document.addEventListener('keydown', e => {
   if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
   const onControl = e.target instanceof Element && e.target.closest('button, input, select, textarea, a');
