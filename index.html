@@ -1,0 +1,1510 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Шиба на крыше</title>
+<style>
+/* ===== Palette ===== */
+:root {
+  --ink: #2b1a2e;
+  --night: #1b2453;
+  --teal: #3a8f9d;
+  --peach: #f59a78;
+  --gold: #ffd37f;
+  --sakura: #ffc1d4;
+  --fur: #ec8a3f;
+  --cream: #fff4e2;
+  color-scheme: dark;
+}
+html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; background: var(--night); }
+body {
+  color: var(--cream);
+  font-family: ui-rounded, "SF Pro Rounded", "Nunito", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+.stage { position: fixed; inset: 0; width: 100%; height: 100%; overflow: hidden; background: var(--night); }
+
+/* Derived shades for the illustration: pre-mixed from the palette as literals (no color-mix() dependency) */
+.scene {
+  display: block; width: 100%; height: 100%;
+  --fur-hi: #f5ab5c;
+  --cream-sh: #efd4cd;
+  --shade: #5d2247;
+  --bean: #faa1bb;
+  --blush: #ff94b1;
+  --wood: #fabf6d;
+  --wood-sh: #c2713b;
+  --mahog: #885036;
+  --rose: #391f2b;
+  --teal-sh: #346373;
+  --far: #b4776d;
+  --mid: #6e4f6a;
+  --near: #1f2049;
+  --rail: #281c35;
+}
+/* fills */
+.k { fill: var(--ink); } .w { fill: #fff; } .fu { fill: var(--fur); } .fh { fill: var(--fur-hi); }
+.cr { fill: var(--cream); } .bean { fill: var(--bean); } .tl { fill: var(--teal); } .tls { fill: var(--teal-sh); }
+.gd { fill: var(--gold); } .nf { fill: none; }
+.shade { fill: var(--shade); opacity: .3; }
+/* line art: silhouette / inner / fine */
+.ol  { stroke: var(--ink); stroke-width: 5.5; stroke-linejoin: round; stroke-linecap: round; }
+.ol2 { stroke: var(--ink); stroke-width: 3.6; stroke-linejoin: round; stroke-linecap: round; }
+.ol3 { stroke: var(--ink); stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; }
+.rim { fill: none; stroke: var(--gold); stroke-width: 9; stroke-linecap: round; opacity: .85; }
+/* limbs (outline stroke under fill stroke) */
+.limbO { fill: none; stroke: var(--ink); stroke-width: 45; stroke-linecap: round; stroke-linejoin: round; }
+.limbF { fill: none; stroke: var(--fur); stroke-width: 35; stroke-linecap: round; stroke-linejoin: round; }
+.limbC { fill: none; stroke: var(--cream); stroke-width: 35; stroke-linecap: round; }
+.limbS { fill: none; stroke: var(--shade); stroke-width: 14; stroke-linecap: round; stroke-linejoin: round; opacity: .3; }  /* flush with the far edge */
+.limbR { fill: none; stroke: var(--gold); stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; opacity: .8; }  /* sun rim, lit edge */
+/* guitar */
+.gTop { fill: var(--wood); } .gSide { fill: var(--mahog); }
+.gEdgeSh { fill: none; stroke: var(--wood-sh); stroke-width: 26; opacity: .55; }
+.gEdgeHi { fill: none; stroke: #fff6dc; stroke-width: 9; opacity: .7; }
+.binding { fill: none; stroke: var(--cream); stroke-width: 10; }
+.rose { fill: var(--rose); } .hole { fill: #1e1016; }
+.fret { stroke: #d9d2c8; stroke-width: 2; } .dot { fill: #f6eee0; }
+.saddle { stroke: var(--cream); stroke-width: 3.5; stroke-linecap: round; }
+.pickguard { fill: #6c3c2b; }
+.str { fill: none; stroke-linecap: round; }
+.strShadow { fill: none; stroke: var(--ink); stroke-width: 2.2; opacity: .35; }
+.strLens { fill: #fff4d8; }
+.glintBand { fill: #fffbea; }
+/* background */
+.cloudLit { fill: #ffe0a5; }
+.cloudMid { fill: #f9aa9d; }
+.cloudSh  { fill: #675f91; }
+.streak { fill: #fab77c; opacity: .55; }
+.cityFar { fill: var(--far); } .cityFarWin { fill: #ffe2b0; opacity: .5; }
+.cityMid { fill: var(--mid); } .cityMidWin { fill: var(--gold); opacity: .55; }
+.cityNear { fill: var(--near); } .cityNearWin { fill: var(--gold); opacity: .85; } .cityNearWin2 { fill: #9fd6dc; opacity: .6; }
+.cityRim { fill: var(--gold); } .cityTop { fill: #ffcf96; }
+.hazeBand { fill: url(#gHaze); }
+.wire { fill: none; stroke: var(--rail); stroke-width: 2.2; }
+.pole { fill: var(--rail); }
+.railing { fill: var(--rail); }
+.railRim { fill: none; stroke: var(--gold); stroke-width: 2.5; opacity: .7; }
+.parapet { fill: #674d60; }
+.parapetTop { fill: #f8ab7a; }
+.seam { fill: none; stroke: var(--ink); stroke-width: 2; opacity: .12; }
+.prop { fill: #26496d; } .propSh { fill: #1a2f4f; }
+.propLt { fill: #8e948c; }
+.pot { fill: #f1946b; } .potSh { fill: #b9605a; } .potHi { fill: #f8b98a; }
+.beacon { fill: #ff4f5e; }
+.star { fill: #fff8e6; }
+.bird { fill: none; stroke: var(--rail); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.petal { fill: var(--sakura); }
+.pf { opacity: .92; } .pb { opacity: .7; }
+.noteO { fill: #fff; stroke: #fff; stroke-width: 7; stroke-linejoin: round; }
+.n1 { fill: var(--gold); } .n2 { fill: var(--sakura); } .n3 { fill: #75b1ba; }
+.speed, .wind { fill: #fff8ea; }
+.smear { fill: none; stroke: #fffaf0; stroke-linecap: round; }
+.sfx { font: 900 74px/1 ui-rounded, "SF Pro Rounded", "Nunito", "Arial Black", system-ui, sans-serif; letter-spacing: -1px;
+  fill: var(--gold); stroke: var(--ink); stroke-width: 11; stroke-linejoin: round; paint-order: stroke; }
+.sfxHi { fill: none; stroke: #fff; stroke-width: 3; opacity: .9; paint-order: normal; }
+.spark1 { fill: #fffbe8; } .spark2 { fill: var(--gold); } .spark3 { fill: var(--sakura); }
+
+/* ===== UI ===== */
+.card {
+  position: fixed; z-index: 2;
+  top: max(16px, env(safe-area-inset-top)); left: max(16px, env(safe-area-inset-left));
+  padding: 10px 16px 11px; border-radius: 16px;
+  background: rgba(27,36,83,0.62);
+  border: 1px solid rgba(255,244,226,0.16);
+  max-width: calc(100% - 32px);
+  box-sizing: border-box;
+  pointer-events: none;
+}
+.card h1 { margin: 0; font-size: 17px; font-weight: 800; letter-spacing: .01em; line-height: 1.2; }
+.card p { margin: 3px 0 0; font-size: 12.5px; font-weight: 600; opacity: .78; line-height: 1.3; }
+.bar {
+  position: fixed; z-index: 3; left: 50%; transform: translateX(-50%);
+  bottom: max(16px, env(safe-area-inset-bottom));
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px; border-radius: 999px;
+  background: rgba(27,36,83,0.82);
+  border: 1px solid rgba(255,244,226,0.18);
+  box-shadow: 0 10px 30px rgba(43,26,46,0.45);
+  max-width: calc(100% - 32px - env(safe-area-inset-left) - env(safe-area-inset-right));
+  box-sizing: border-box; white-space: nowrap;
+}
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 44px; padding: 0 16px 0 13px; border: 0; border-radius: 999px;
+  font: inherit; font-size: 15px; font-weight: 700; color: var(--cream);
+  background: rgba(255,244,226,0.1);
+  cursor: pointer; transition: background-color .15s, color .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:hover { background: rgba(255,244,226,0.18); }
+.btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.btn[aria-pressed="true"] { background: var(--gold); color: var(--ink); }
+#playBtn:not(.is-playing) { background: var(--sakura); color: var(--ink); }   /* paused: «Играть» is the primary action */
+.ico { width: 20px; height: 20px; fill: currentColor; flex: none; }
+.ico .on, .is-playing .ico .play, .btn:not(.is-playing) .ico .pause { display: none; }
+.btn[aria-pressed="true"] .ico .on { display: inline; }
+.btn[aria-pressed="true"] .ico .off { display: none; }
+.chords { display: flex; gap: 2px; margin: 0 6px 0 4px; padding: 0; list-style: none; font-size: 13px; font-weight: 800; }
+/* only the incoming chip animates, so two chips are never lit at once */
+.chords li { padding: 5px 8px; border-radius: 999px; opacity: .5; }
+.chords li.on { opacity: 1; color: var(--ink); background: var(--sakura); transition: opacity .2s, background-color .2s, color .2s; }
+.hint { font-size: 12px; font-weight: 600; opacity: .6; padding-right: 10px; }
+@media (max-width: 899px) { .hint { display: none; } }
+@media (max-width: 520px) {
+  .chords li:not(.on) { display: none; }
+  .chords { margin: 0 4px 0 2px; }
+  .btn { padding: 0 14px 0 11px; }
+  .card h1 { font-size: 15px; } .card p { font-size: 11.5px; }
+}
+@media (max-width: 319px) { .chords { display: none; } }   /* very narrow phones: the two buttons only */
+</style>
+</head>
+<body>
+<div class="stage">
+<svg id="scene" class="scene" viewBox="-800 0 1600 1000" preserveAspectRatio="xMidYMid slice" role="img"
+  aria-label="Аниме-сцена: рыжий шиба-ину сидит на ящике на крыше на закате и играет на акустической гитаре; вокруг летят лепестки сакуры и ноты.">
+<defs id="defs">
+  <linearGradient id="gSky" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="780">
+    <stop offset="0" style="stop-color:var(--night)"/>
+    <stop offset=".3" style="stop-color:#2b5a78"/>
+    <stop offset=".5" style="stop-color:#93a6b6"/>
+    <stop offset=".68" style="stop-color:#f9a898"/>
+    <stop offset=".84" style="stop-color:#fbb97c"/>
+    <stop offset="1" style="stop-color:#ffe7b9"/>
+  </linearGradient>
+  <radialGradient id="gGlow" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="460">
+    <stop offset="0" style="stop-color:#fffbe8"/>
+    <stop offset=".1" style="stop-color:var(--gold);stop-opacity:.9"/>
+    <stop offset=".34" style="stop-color:var(--peach);stop-opacity:.38"/>
+    <stop offset="1" style="stop-color:var(--peach);stop-opacity:0"/>
+  </radialGradient>
+  <radialGradient id="gRay" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="900">
+    <stop offset="0" style="stop-color:#fff3cf;stop-opacity:.42"/>
+    <stop offset="1" style="stop-color:#fff3cf;stop-opacity:0"/>
+  </radialGradient>
+  <linearGradient id="gFloor" gradientUnits="userSpaceOnUse" x1="0" y1="776" x2="0" y2="1000">
+    <stop offset="0" style="stop-color:#936567"/>
+    <stop offset="1" style="stop-color:#1e224c"/>
+  </linearGradient>
+  <linearGradient id="gHaze" gradientUnits="userSpaceOnUse" x1="0" y1="560" x2="0" y2="772">
+    <stop offset="0" style="stop-color:#ffcf9a;stop-opacity:0"/>
+    <stop offset="1" style="stop-color:#ffcf9a;stop-opacity:.42"/>
+  </linearGradient>
+  <linearGradient id="gIris" gradientUnits="userSpaceOnUse" x1="0" y1="-33" x2="0" y2="33">
+    <stop offset="0" stop-color="#24101a"/>
+    <stop offset=".4" stop-color="#5a2621"/>
+    <stop offset=".78" stop-color="#d5702e"/>
+    <stop offset="1" stop-color="#ffc56c"/>
+  </linearGradient>
+
+  <!-- shared shapes -->
+  <path id="pHead" d="M0 -146C82 -146 138 -102 148 -44C153 -18 157 0 163 16C157 20 153 24 151 28C159 34 161 42 159 50
+    C147 50 139 54 131 58C107 86 63 98 0 98C-63 98 -107 86 -131 58C-139 54 -147 50 -159 50C-161 42 -159 34 -151 28
+    C-153 24 -157 20 -163 16C-157 0 -153 -18 -148 -44C-138 -102 -82 -146 0 -146Z"/>
+  <path id="pTorso" d="M-64 -302C-98 -262 -126 -172 -122 -84C-118 -12 -72 18 0 18C72 18 118 -12 122 -84C126 -172 98 -262 64 -302Z"/>
+  <path id="pGBody" d="M-139 0C-139 -48 -102 -84 -55 -84C-24 -84 -10 -58 8 -56C24 -54 32 -64 58 -64C96 -64 122 -36 122 0
+      C122 36 96 64 58 64C32 64 24 54 8 56C-10 58 -24 84 -55 84C-102 84 -139 48 -139 0Z"/>
+  <clipPath id="cpHead"><use href="#pHead"/></clipPath>
+  <clipPath id="cpTorso"><use href="#pTorso"/></clipPath>
+  <clipPath id="cpGBody"><use href="#pGBody"/></clipPath>
+  <path id="pThighR" d="M24 -14C22 -44 52 -60 82 -57C112 -54 136 -38 135 -12C134 0 130 8 124 14L131 19L118 21C107 28 94 30 80 29C52 27 26 12 24 -14Z"/>
+  <path id="pShinR" d="M58 -2C56 34 58 70 62 98H102C106 70 108 34 106 -2Z"/>
+  <path id="pThighL" d="M-24 -14C-22 -44 -52 -60 -82 -57C-112 -54 -136 -38 -135 -12C-134 0 -130 8 -124 14
+      L-131 19L-118 21C-107 28 -94 30 -80 29C-52 27 -26 12 -24 -14Z"/>
+  <path id="pShinL" d="M-58 -2C-56 34 -58 70 -62 98H-102C-106 70 -108 34 -106 -2Z"/>
+  <clipPath id="cpThighR"><use href="#pThighR"/></clipPath><clipPath id="cpShinR"><use href="#pShinR"/></clipPath>
+  <clipPath id="cpThighL"><use href="#pThighL"/></clipPath><clipPath id="cpShinL"><use href="#pShinL"/></clipPath>
+  <path id="pSpark" d="M0 -1C.09 -.24 .24 -.09 1 0C.24 .09 .09 .24 0 1C-.09 .24 -.24 .09 -1 0C-.24 -.09 -.09 -.24 0 -1Z"/>
+  <path id="pPetal" d="M0 1C-.55 .62 -.86 -.14 -.53 -.82C-.36 -1.04 -.12 -1 0 -.78C.12 -1 .36 -1.04 .53 -.82C.86 -.14 .55 .62 0 1Z"/>
+  <g id="pNote1">
+    <ellipse cx="-5" cy="12" rx="9" ry="6.6" transform="rotate(-22 -5 12)"/>
+    <rect x="1.6" y="-22" width="4.2" height="33"/>
+    <path d="M1.6 -22C5 -13 18 -12 15 1C13 -6 8 -8 3 -8Z"/>
+  </g>
+  <g id="pNote2">
+    <ellipse cx="-10" cy="13" rx="8.4" ry="6.2" transform="rotate(-22 -10 13)"/>
+    <ellipse cx="14" cy="8" rx="8.4" ry="6.2" transform="rotate(-22 14 8)"/>
+    <rect x="-4" y="-20" width="4" height="33"/>
+    <rect x="20" y="-25" width="4" height="33"/>
+    <path d="M-4 -20L24 -25V-17L-4 -12Z"/>
+  </g>
+  <!-- ear (screen-left orientation); the right one is mirrored -->
+  <g id="pEar">
+    <path class="fu ol" d="M-142 -30C-152 -84 -144 -132 -126 -168Q-119 -180 -108 -172C-88 -154 -64 -128 -44 -104Z"/>
+    <path class="cr" d="M-128 -52C-134 -92 -129 -126 -118 -150C-102 -136 -84 -118 -68 -102Z"/>
+    <path class="bean" d="M-122 -76C-125 -100 -122 -122 -116 -138C-106 -126 -96 -114 -88 -104Z" opacity=".8"/>
+    <path class="cr" d="M-130 -46C-131 -64 -130 -80 -127 -92L-119 -78L-112 -96L-104 -76L-94 -90L-86 -74L-76 -84C-92 -66 -112 -56 -130 -46Z"/>
+    <path class="shade" d="M-142 -30C-152 -84 -144 -132 -126 -168L-130 -146C-138 -110 -140 -72 -133 -36Z"/>
+  </g>
+</defs>
+
+<!-- ===== Sky ===== -->
+<rect x="-3000" y="-10" width="6000" height="1020" fill="url(#gSky)"/>
+<g id="stars"></g>
+<g id="sun">
+  <g id="rays"></g>
+  <circle r="460" fill="url(#gGlow)" id="sunGlow"/>
+  <circle r="46" fill="#fffaf0"/>
+</g>
+<g id="streaks"></g>
+<g id="clouds"></g>
+<!-- ===== City (parallax) ===== -->
+<g id="cityFar"></g>
+<g id="haze"><ellipse rx="640" ry="2.6" class="spark2" opacity=".5"/></g>
+<rect class="hazeBand" x="-3000" y="560" width="6000" height="212"/>
+<g id="cityMid"></g>
+<g id="birds"></g>
+<g id="wires"></g>
+<g id="cityNear"></g>
+<g id="petalsBack"></g>
+<!-- ===== Rooftop ===== -->
+<g id="roof"></g>
+
+<!-- gust wind streaks pass behind the dog -->
+<path id="wind" class="wind" opacity="0"/>
+
+<!-- ===== Character ===== -->
+<g id="char">
+  <path d="M-152 162L152 162L60 236L-400 236Z" class="k" opacity=".22"/>
+  <ellipse cx="0" cy="164" rx="180" ry="13" class="k" opacity=".3"/>
+  <!-- crate: lit lid, front in shade, the dog's cast shadow, sun rim on the right edge -->
+  <g id="crate">
+    <path d="M-138 -8H138L152 12H-152Z" style="fill:#f4a759" class="ol2"/>
+    <rect x="-152" y="12" width="304" height="150" rx="5" style="fill:#8f5437"/>
+    <path d="M-152 62H152M-152 112H152" style="stroke:var(--ink)" stroke-width="5" opacity=".55"/>
+    <rect x="-152" y="12" width="24" height="150" style="fill:#784735"/>
+    <rect x="128" y="12" width="24" height="150" style="fill:#784735"/>
+    <path d="M-152 12H152V30C96 46 -40 50 -152 40Z" class="k" opacity=".28"/>
+    <path d="M-128 62H128M-128 112H128" style="stroke:#c98a5a" stroke-width="3" opacity=".5" transform="translate(0 5)"/>
+    <g class="k" opacity=".55">
+      <circle cx="-140" cy="36" r="3"/>
+      <circle cx="-140" cy="138" r="3"/>
+      <circle cx="140" cy="36" r="3"/>
+      <circle cx="140" cy="138" r="3"/>
+    </g>
+    <path d="M149 16V158" class="nf" style="stroke:var(--gold)" stroke-width="5" stroke-linecap="round" opacity=".75"/>
+    <rect x="-152" y="12" width="304" height="150" rx="5" class="nf ol"/>
+  </g>
+  <!-- soda can -->
+  <g transform="translate(206 128)">
+    <rect x="-15" y="-24" width="30" height="48" rx="6" class="tl"/>
+    <rect x="-15" y="-6" width="30" height="10" class="cr"/>
+    <path d="M-15 -18Q-15 -24 -9 -24H-4V24H-9Q-15 24 -15 18Z" class="tls"/>
+    <rect x="5" y="-20" width="4" height="40" rx="2" fill="#fff" opacity=".55"/>
+    <path d="M13 -18V18" class="nf" style="stroke:var(--gold)" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+    <rect x="-15" y="-24" width="30" height="48" rx="6" class="nf ol2"/>
+  </g>
+  <g id="dog">
+  <!-- tail -->
+  <g id="tail" transform="translate(104 -22)">
+    <g id="tailO" class="k"></g>
+    <g id="tailTipO" class="k"></g>
+    <g id="tailF" class="fu"></g>
+    <path class="nf" style="stroke:var(--cream)" stroke-width="12" stroke-linecap="round" d="M8 8C26 8 44 2 54 -8"/>
+    <g id="tailTip">
+      <g id="tailTipF" class="fu"></g>
+      <path class="nf" style="stroke:var(--cream)" stroke-width="12" stroke-linecap="round" d="M54 -8C61 -15 64 -22 65 -30
+          C68 -48 60 -66 46 -70C36 -72 30 -66 32 -58"/>
+      <path class="nf ol3" d="M30 -52C26 -64 36 -76 50 -74C66 -70 74 -48 66 -28" opacity=".6"/>
+      <path class="rim" d="M86 -40C94 -60 90 -86 74 -98" stroke-width="6"/>
+    </g>
+  </g>
+  <!-- torso (sways); an ink copy offset to the shadow side thickens the line on the lower left -->
+  <g id="bodyA">
+    <use href="#pTorso" class="k" transform="translate(-4 5)"/>
+    <use href="#pTorso" class="fu"/>
+    <g clip-path="url(#cpTorso)">
+      <ellipse cx="0" cy="-80" rx="74" ry="92" class="cr"/>
+      <path class="cr" d="M-70 -320L-70 -262L-52 -270L-58 -236L-36 -250L-33 -212L-14 -232L0 -196L14 -232L33 -212L36 -250L58 -236L52 -270L70 -262L70 -320Z"/>
+      <path class="shade" d="M-140 -330L-70 -330C-106 -276 -120 -186 -112 -96C-106 -34 -86 -2 -52 26L-140 26Z"/>
+      <ellipse cx="0" cy="-300" rx="124" ry="44" class="shade"/>
+      <path class="rim" d="M90 -268C112 -220 124 -156 122 -88"/>
+    </g>
+    <use href="#pTorso" class="nf ol"/>
+    <!-- bandana: the knot tip flutters on its own -->
+    <g id="bandTip">
+      <path class="tl ol2" d="M-54 -278C-20 -268 20 -268 54 -278L7 -222Q0 -214 -7 -222Z"/>
+      <path class="tls" d="M0 -270L7 -222Q0 -214 -7 -222L-2 -240Z" opacity=".6"/>
+      <g fill="#fff" opacity=".8">
+        <circle cx="-24" cy="-262" r="2.6"/>
+        <circle cx="2" cy="-252" r="2.6"/>
+        <circle cx="24" cy="-262" r="2.6"/>
+        <circle cx="-6" cy="-236" r="2.2"/>
+      </g>
+    </g>
+    <path class="tl ol2" d="M-68 -300C-30 -284 30 -284 68 -300L72 -280C30 -262 -30 -262 -72 -280Z"/>
+    <path class="tls" d="M-70 -288C-30 -272 30 -272 70 -288L72 -280C30 -262 -30 -262 -72 -280Z" opacity=".7"/>
+  </g>
+  <!-- hind legs: thigh + shin share one silhouette (thick ink under-stroke, fills on top), knee overhang casts a hard shadow -->
+  <g id="legs">
+    <g class="k" style="stroke:var(--ink)" stroke-width="10" stroke-linejoin="round">
+      <use href="#pShinL"/><use href="#pThighL"/><use href="#pShinR"/><use href="#pThighR"/>
+    </g>
+    <g id="legL">
+      <use href="#pShinL" class="fu"/>
+      <g clip-path="url(#cpShinL)">
+        <path class="cr" d="M-57.5 50L-64 58L-72 52L-80 60L-88 52L-96 59L-106.5 50L-110 100H-54Z"/>
+        <use href="#pThighL" class="shade" transform="translate(-2 13)"/>
+        <rect x="-112" y="-4" width="13" height="104" class="shade"/>
+      </g>
+      <use href="#pThighL" class="fu"/>
+      <g clip-path="url(#cpThighL)">
+        <use href="#pThighL" class="shade"/>
+        <use href="#pThighL" class="fu" transform="translate(7 -9)"/>
+      </g>
+      <path class="nf ol3" d="M-46 16C-60 25 -76 29 -94 28"/>
+    </g>
+    <g id="legR">
+      <use href="#pShinR" class="fu"/>
+      <g clip-path="url(#cpShinR)">
+        <path class="cr" d="M57.5 50L64 58L72 52L80 60L88 52L96 59L106.5 50L110 100H54Z"/>
+        <use href="#pThighR" class="shade" transform="translate(-2 13)"/>
+        <rect x="52" y="-4" width="15" height="104" class="shade"/>
+      </g>
+      <use href="#pThighR" class="fu"/>
+      <g clip-path="url(#cpThighR)">
+        <use href="#pThighR" class="shade"/>
+        <use href="#pThighR" class="fu" transform="translate(7 -9)"/>
+      </g>
+      <path class="nf ol3" d="M44 16C58 25 74 29 92 28"/>
+      <path class="rim" d="M129 -30C135 -16 133 0 127 9" stroke-width="5"/>
+    </g>
+    <g id="footL">
+      <ellipse cx="-82" cy="112" rx="31" ry="25" class="cr ol"/>
+      <path class="bean" d="M-68 120C-66 108 -98 108 -96 120C-95 130 -69 130 -68 120Z"/>
+      <ellipse cx="-64" cy="101" rx="5.5" ry="6.5" class="bean"/><ellipse cx="-76" cy="95" rx="5.5" ry="7" class="bean"/>
+      <ellipse cx="-88" cy="95" rx="5.5" ry="7" class="bean"/><ellipse cx="-100" cy="101" rx="5.5" ry="6.5" class="bean"/>
+      <path class="shade" d="M-110 116C-104 132 -60 132 -54 116C-58 138 -106 138 -110 116Z"/>
+    </g>
+    <g id="footR">
+      <ellipse cx="82" cy="112" rx="31" ry="25" class="cr ol"/>
+      <path class="bean" d="M68 120C66 108 98 108 96 120C95 130 69 130 68 120Z"/>
+      <ellipse cx="64" cy="101" rx="5.5" ry="6.5" class="bean"/><ellipse cx="76" cy="95" rx="5.5" ry="7" class="bean"/>
+      <ellipse cx="88" cy="95" rx="5.5" ry="7" class="bean"/><ellipse cx="100" cy="101" rx="5.5" ry="6.5" class="bean"/>
+      <path class="shade" d="M54 116C60 132 104 132 110 116C106 138 58 138 54 116Z"/>
+    </g>
+  </g>
+  <!-- upper body: arms, guitar, head (sways with torso) -->
+  <g id="bodyB">
+    <!-- strap over the left shoulder, with studs -->
+    <path id="strap" class="nf" style="stroke:var(--ink)" stroke-width="21" stroke-linecap="round"/>
+    <path id="strapF" class="nf" style="stroke:var(--teal)" stroke-width="14" stroke-linecap="round"/>
+    <path id="strapS" class="nf" style="stroke:var(--gold)" stroke-width="5" stroke-linecap="round" stroke-dasharray="0 24"/>
+    <!-- fretting upper arm passes behind the guitar neck -->
+    <g id="armFU"><path class="limbO"/><path class="limbF"/><path class="limbS"/><path class="limbR"/></g>
+    <!-- thumb peeks over the top edge of the neck -->
+    <path id="thumbF" class="cr ol2" d="M-4 -8C-8 -22 -3 -33 7 -34C15 -34 18 -26 15 -8Z"/>
+    <!-- guitar (local axis: +x toward headstock) -->
+    <g id="guitar" transform="translate(-58 -98) rotate(-25)">
+      <use href="#pGBody" class="gSide ol" transform="translate(4 9)"/>
+      <use href="#pGBody" class="gTop"/>
+      <g clip-path="url(#cpGBody)">
+        <use href="#pGBody" class="gEdgeSh" transform="translate(-7 11)"/>
+        <use href="#pGBody" class="gEdgeHi" transform="translate(6 -7)"/>
+        <g id="glint" opacity="0"><path class="glintBand" d="M-30 -160H8V160H-30ZM20 -160H32V160H20Z"/></g>
+      </g>
+      <use href="#pGBody" class="binding"/>
+      <use href="#pGBody" class="nf ol"/>
+      <circle cx="46" cy="0" r="36" class="nf" style="stroke:var(--mahog)" stroke-width="3"/>
+      <circle cx="46" cy="0" r="31.5" class="nf" style="stroke:var(--teal)" stroke-width="4"/>
+      <circle cx="46" cy="0" r="25" class="hole ol2"/>
+      <path d="M30 14A21 21 0 0 0 66 6A25 25 0 0 1 30 14Z" class="gSide" opacity=".9"/>
+      <path class="pickguard ol3" d="M78 18C80 40 62 54 36 56C12 58 -14 54 -22 42C-28 32 -10 14 10 6A37 37 0 0 0 78 18Z"/>
+      <path d="M-14 40C-4 50 20 52 40 48" class="nf" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".25"/>
+      <rect x="-94" y="-36" width="30" height="72" rx="9" class="rose ol3"/>
+      <line x1="-73" y1="-24" x2="-73" y2="24" class="saddle"/>
+      <g id="pins" class="cr"></g>
+      <path class="rose ol3" d="M76 -19L392 -15.5L392 15.5L76 19Z"/>
+      <g id="frets"></g>
+      <rect x="390" y="-16" width="6" height="32" rx="1.5" class="cr"/>
+      <path class="ol3" style="fill:#2f1c22" d="M396 -17L406 -23C432 -25 458 -29 482 -25C491 -13 491 13 482 25C458 29 432 25 406 23L396 17Z"/>
+      <path d="M408 -18C432 -20 456 -23 476 -20" class="nf" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".25"/>
+      <g id="tuners"></g>
+      <use id="logo" href="#pSpark" class="gd" transform="translate(474 0) scale(7)"/>
+      <g id="strings"></g>
+    </g>
+    <!-- fretting forearm + paw (in front of the neck) -->
+    <g id="armFF"><path class="limbO"/><path class="limbF"/><path class="limbC"/><path class="limbS"/><path class="limbR"/></g>
+    <g id="pawF">
+      <path class="cr ol" d="M-19 24C-23 6 -22 -8 -17 -14C-16 -21 -9 -23 -6 -18C-4 -24 4 -24 6 -18C9 -23 16 -21 17 -14C22 -8 23 6 19 24Z"/>
+      <path class="nf ol3" d="M-6 -18V-10M6 -18V-10"/>
+      <path class="shade" d="M10 24C16 10 16 -6 12 -18C16 -21 17 -14 17 -14C22 -8 23 6 19 24Z"/>
+    </g>
+    <!-- strumming arm, motion smear, paw with pick -->
+    <g id="armS"><path class="limbO"/><path class="limbF"/><path class="limbC"/><path class="limbS"/></g>
+    <path id="smear" class="smear" opacity="0"/>
+    <g id="pawS">
+      <path class="tl ol3" d="M26 4L48 13Q52 17 47 20L31 25Q24 26 24 19Z"/>
+      <path class="cr ol" d="M-3 -19C12 -24 30 -22 37 -11C42 -3 41 9 35 16C27 24 8 24 -3 19Z"/>
+      <path class="nf ol3" d="M34 -10Q28 -8 27 -3M37 4Q31 4 28 8"/>
+      <path class="shade" d="M-3 10C10 19 26 19 35 14C27 24 8 24 -3 19Z"/>
+    </g>
+    <!-- head -->
+    <g id="head" transform="translate(0 -402)">
+      <g id="ahoge"><path class="fu ol" d="M-18 -136L-12 -160L-3 -145L6 -170L13 -144L24 -158L24 -132Z"/></g>
+      <g id="earL"><use href="#pEar" transform="translate(-102 -76) rotate(-8) scale(.86) translate(96 56)"/></g>
+      <g id="earR">
+        <use href="#pEar" transform="translate(102 -76) rotate(8) scale(-.86 .86) translate(96 56)"/>
+        <path class="rim" d="M136 -170C150 -140 154 -104 148 -66" stroke-width="6"/>
+      </g>
+      <use href="#pHead" class="k" transform="translate(-4 5)"/>
+      <use href="#pHead" class="fu"/>
+      <g clip-path="url(#cpHead)">
+        <path class="cr" d="M-175 8C-140 10 -114 18 -102 30C-88 46 -60 52 -40 44C-28 38 -22 28 -17 20C-11 24 -7 25 0 25
+            C7 25 11 24 17 20C22 28 28 38 40 44C60 52 88 46 102 30C114 18 140 10 175 8L175 130L-175 130Z"/>
+        <ellipse cx="26" cy="-122" rx="44" ry="10" class="fh" transform="rotate(-10 26 -122)"/>
+        <path class="shade" d="M-175 -150L-40 -150C-100 -136 -134 -90 -140 -30C-144 24 -130 66 -98 110L-175 110Z"/>
+        <path class="shade" d="M-175 74C-110 100 110 100 175 74L175 130L-175 130Z"/>
+        <path class="rim" d="M72 -136C114 -120 138 -90 146 -48C150 -26 154 -8 162 12"/>
+      </g>
+      <use href="#pHead" class="nf ol"/>
+      <!-- maro-mayu brows -->
+      <ellipse id="browL" cx="-56" cy="-80" rx="15" ry="9" class="cr" transform="rotate(14 -56 -80)"/>
+      <ellipse id="browR" cx="56" cy="-80" rx="15" ry="9" class="cr" transform="rotate(-14 56 -80)"/>
+      <!-- eyes: iris gradient, pupil, lashes, 3 highlights + a ✦; alternates: blink, ^ ^, star eyes -->
+      <g id="eyeL" transform="translate(-60 -6) scale(1.2)">
+        <g class="eyeOpen">
+          <ellipse rx="27" ry="33" fill="url(#gIris)"/>
+          <ellipse class="pupil k" cy="-4" rx="14" ry="18"/>
+          <path d="M-19 15Q0 31 19 15Q0 24 -19 15Z" fill="#ffd38a" opacity=".85"/>
+          <ellipse rx="27" ry="33" class="nf ol3"/>
+          <path class="k" transform="scale(-1 1)" d="M-31 -4C-29 -30 -8 -42 6 -41C22 -40 34 -28 34 -10
+              L39 -6C36 -4 33 -5 31 -8C28 -24 18 -34 4 -34C-10 -34 -25 -24 -31 -4Z"/>
+          <path class="nf ol3" transform="scale(-1 1)" d="M18 28Q25 24 28 17"/>
+          <ellipse cx="9" cy="-14" rx="9" ry="11" class="w"/>
+          <circle cx="-10" cy="13" r="4.6" class="w"/>
+          <use href="#pSpark" transform="translate(14 6) scale(5.5)" class="spark3"/>
+        </g>
+        <g class="eyeStar" visibility="hidden">
+          <ellipse rx="27" ry="33" fill="url(#gIris)"/>
+          <ellipse rx="27" ry="33" class="nf ol3"/>
+          <path class="k" transform="scale(-1 1)" d="M-31 -4C-29 -30 -8 -42 6 -41C22 -40 34 -28 34 -10
+              L39 -6C36 -4 33 -5 31 -8C28 -24 18 -34 4 -34C-10 -34 -25 -24 -31 -4Z"/>
+          <use href="#pSpark" transform="translate(0 2) scale(22 26)" class="w"/>
+          <use href="#pSpark" transform="translate(0 2) scale(10 12)" class="gd"/>
+          <circle cx="-13" cy="-15" r="4" class="w"/>
+        </g>
+        <path class="eyeShut nf ol" d="M-25 2Q0 16 25 2" stroke-width="6" visibility="hidden"/>
+        <path class="eyeHappy nf ol" d="M-24 10Q0 -18 24 10" stroke-width="6.5" visibility="hidden"/>
+      </g>
+      <g id="eyeR" transform="translate(60 -6) scale(1.2)">
+        <g class="eyeOpen">
+          <ellipse rx="27" ry="33" fill="url(#gIris)"/>
+          <ellipse class="pupil k" cy="-4" rx="14" ry="18"/>
+          <path d="M-19 15Q0 31 19 15Q0 24 -19 15Z" fill="#ffd38a" opacity=".85"/>
+          <ellipse rx="27" ry="33" class="nf ol3"/>
+          <path class="k" d="M-31 -4C-29 -30 -8 -42 6 -41C22 -40 34 -28 34 -10L39 -6C36 -4 33 -5 31 -8C28 -24 18 -34 4 -34C-10 -34 -25 -24 -31 -4Z"/>
+          <path class="nf ol3" d="M18 28Q25 24 28 17"/>
+          <ellipse cx="9" cy="-14" rx="9" ry="11" class="w"/>
+          <circle cx="-10" cy="13" r="4.6" class="w"/>
+          <use href="#pSpark" transform="translate(14 6) scale(5.5)" class="spark3"/>
+        </g>
+        <g class="eyeStar" visibility="hidden">
+          <ellipse rx="27" ry="33" fill="url(#gIris)"/>
+          <ellipse rx="27" ry="33" class="nf ol3"/>
+          <path class="k" d="M-31 -4C-29 -30 -8 -42 6 -41C22 -40 34 -28 34 -10L39 -6C36 -4 33 -5 31 -8C28 -24 18 -34 4 -34C-10 -34 -25 -24 -31 -4Z"/>
+          <use href="#pSpark" transform="translate(0 2) scale(22 26)" class="w"/>
+          <use href="#pSpark" transform="translate(0 2) scale(10 12)" class="gd"/>
+          <circle cx="-13" cy="-15" r="4" class="w"/>
+        </g>
+        <path class="eyeShut nf ol" d="M-25 2Q0 16 25 2" stroke-width="6" visibility="hidden"/>
+        <path class="eyeHappy nf ol" d="M-24 10Q0 -18 24 10" stroke-width="6.5" visibility="hidden"/>
+      </g>
+      <!-- blush -->
+      <g id="blush">
+        <ellipse cx="-102" cy="46" rx="22" ry="11" style="fill:var(--blush)" opacity=".55"/>
+        <ellipse cx="102" cy="46" rx="22" ry="11" style="fill:var(--blush)" opacity=".55"/>
+        <path d="M-110 42l-6 9M-101 41l-6 9M-92 42l-6 9M94 42l-6 9M103 41l-6 9M112 42l-6 9" style="stroke:#ab5f7a" stroke-width="2.4" stroke-linecap="round"/>
+      </g>
+      <!-- muzzle -->
+      <ellipse cx="0" cy="50" rx="44" ry="30" fill="#fffbf4"/>
+      <path class="nf" style="stroke:var(--cream-sh)" stroke-width="4" stroke-linecap="round" d="M-40 62C-30 78 -14 81 0 81C14 81 30 78 40 62"/>
+      <g class="k" opacity=".45">
+        <circle cx="-32" cy="48" r="1.9"/>
+        <circle cx="-40" cy="55" r="1.9"/>
+        <circle cx="-29" cy="58" r="1.9"/>
+        <circle cx="32" cy="48" r="1.9"/>
+        <circle cx="40" cy="55" r="1.9"/>
+        <circle cx="29" cy="58" r="1.9"/>
+      </g>
+      <path class="k" d="M-18 28C-18 17 18 17 18 28C18 39 7 46 0 46C-7 46 -18 39 -18 28Z"/>
+      <ellipse cx="-6" cy="24" rx="6" ry="3" class="w"/>
+      <circle cx="7" cy="25" r="1.6" class="w" opacity=".8"/>
+      <g id="mouthC">
+        <path fill="#ff8ea2" class="ol3" d="M-1 56Q-2 70 6 70Q13 70 12 56Z"/>
+        <path class="nf ol3" d="M0 46V53M-26 52Q-13 66 0 53Q13 66 26 52"/>
+      </g>
+      <g id="mouthO" visibility="hidden">
+        <path class="ol3" fill="#6b1f2e" d="M-22 52Q0 58 22 52Q20 82 0 84Q-20 82 -22 52Z"/>
+        <path fill="#ff8ea2" d="M-12 70Q0 62 12 70Q11 82 0 82Q-11 82 -12 70Z"/>
+        <path class="nf ol3" d="M0 46V54"/>
+      </g>
+    </g>
+  </g>
+  </g>
+  <!-- per-character FX -->
+  <g id="notes"></g>
+  <g id="burst"></g>
+  <g id="sfx" visibility="hidden"><text class="sfx" text-anchor="middle">ДЗЫНЬ!</text><text class="sfx sfxHi" text-anchor="middle">ДЗЫНЬ!</text></g>
+</g>
+
+<!-- ===== Foreground & overlays ===== -->
+<g id="petalsFront"></g>
+<path id="speed" class="speed" opacity="0"/>
+<rect id="flash" x="-3000" y="0" width="6000" height="1000" fill="#fff6dc" opacity="0" pointer-events="none"/>
+</svg>
+</div>
+
+<header class="card">
+  <h1>Шиба на крыше</h1>
+  <p>Закатный лоу-фай · 96 уд/мин</p>
+</header>
+
+<div class="bar" role="group" aria-label="Управление анимацией">
+  <button id="playBtn" class="btn is-playing" type="button" aria-label="Пауза" aria-keyshortcuts="Space">
+    <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+      <path class="pause" d="M7 5h3.6v14H7zM13.4 5H17v14h-3.6z"/>
+      <path class="play" d="M8 5.2v13.6L19 12z"/>
+    </svg>
+    <span id="playLbl">Пауза</span>
+  </button>
+  <button id="soundBtn" class="btn" type="button" aria-pressed="false" aria-keyshortcuts="M">
+    <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 9h4l5-4v14l-5-4H4z"/>
+      <path class="off" d="M16 9.4l1.3-1.3 1.9 1.9 1.9-1.9 1.3 1.3-1.9 1.9 1.9 1.9-1.3 1.3-1.9-1.9-1.9 1.9-1.3-1.3 1.9-1.9z"/>
+      <path class="on" d="M15.5 8.5a5 5 0 0 1 0 7l-1.3-1.3a3.2 3.2 0 0 0 0-4.4zM18.3 5.7a9 9 0 0 1 0 12.6L17 17a7.2 7.2 0 0 0 0-10z"/>
+    </svg>
+    <span>Звук</span>
+  </button>
+  <ol class="chords" id="chords" aria-hidden="true"><li class="on">Fmaj7</li><li>G</li><li>Em7</li><li>Am7</li></ol>
+  <span class="hint" aria-hidden="true">Пробел — пауза · M — звук</span>
+</div>
+
+<script>
+'use strict';
+/* ================= 1. Helpers ================= */
+const NS = 'http://www.w3.org/2000/svg';
+const $ = id => document.getElementById(id);
+const TAU = Math.PI * 2, DEG = 180 / Math.PI;
+const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
+const lerp = (a, b, t) => a + (b - a) * t;
+const smooth = t => t * t * (3 - 2 * t);
+const easeOut = t => 1 - (1 - t) ** 3;
+const easeInOut = t => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+const hash = n => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+const r1 = n => Math.round(n * 10) / 10;
+const r2 = n => Math.round(n * 100) / 100;
+function prng(seed) {             // mulberry32 — deterministic pseudo-random
+  return () => {
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function make(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+const circ = (x, y, r) => `M${r1(x - r)} ${r1(y)}a${r1(r)} ${r1(r)} 0 1 1 ${r1(2 * r)} 0a${r1(r)} ${r1(r)} 0 1 1 ${r1(-2 * r)} 0Z`;
+const svg = $('scene');
+
+/* ================= 2. Music: tempo, chords, strum pattern ================= */
+const BPM = 96, SPB = 60 / BPM, BAR = 4 * SPB, SWING = 0.56;
+const TUNING = [40, 45, 50, 55, 59, 64];                 // E A D G B E (MIDI)
+const CHORDS = [                                          // «королевский» ход: IV – V – iii – vi
+  { name: 'Fmaj7', frets: [1, 3, 3, 2, 1, 0], pos: 1 },
+  { name: 'G',     frets: [3, 5, 5, 4, 3, 3], pos: 3 },
+  { name: 'Em7',   frets: [0, 7, 9, 7, 8, 7], pos: 7 },
+  { name: 'Am7',   frets: [5, 7, 5, 5, 5, 5], pos: 5 },
+];
+// D · D U · U D U  — [beat, direction (+1 down / −1 up), velocity]
+const PATTERN = [[0, 1, 1], [1, 1, 0.8], [1.5, -1, 0.62], [2.5, -1, 0.66], [3, 1, 0.86], [3.5, -1, 0.7]];
+const EPB = PATTERN.length;
+const STROKE_SIZE = [1.15, 0.68, 1, 1, 0.68, 1, 1, 1];   // per eighth: real stroke vs. ghost (misses the strings)
+const ACCENT = [1, 0.45, 0.72, 0.45];
+const STROKE_DOWN = [0, 1, 2, 3, 4, 5].map((s, j) => [s, j * 0.011]);   // low → high, 11 ms apart
+const STROKE_DOWN5 = STROKE_DOWN.slice(1).map(([s, t]) => [s, t - 0.011]);  // later downstrokes skip the bass string
+const STROKE_UP = [5, 4, 3, 2].map((s, j) => [s, j * 0.009]);           // high → low, 9 ms apart
+// boom-chuck (after draft c): the root on the low string only rings on the bar's first downstroke
+const strokeStrings = ev => (ev.dir < 0 ? STROKE_UP : ev.k % EPB === 0 ? STROKE_DOWN : STROKE_DOWN5);
+
+function eventAt(k) {
+  const bar = Math.floor(k / EPB), [at, dir, vel] = PATTERN[k - bar * EPB];
+  const beat = bar * 4 + (at % 1 ? Math.floor(at) + SWING : at);
+  return { k, bar, t: beat * SPB, dir, vel, chord: CHORDS[bar % 4] };
+}
+function firstEventFrom(t) {
+  let k = Math.max(0, Math.floor(t / BAR)) * EPB;
+  while (eventAt(k).t < t) k++;
+  return k;
+}
+
+/* ================= 3. Guitar geometry ================= */
+const G = { x: -58, y: -98, a: -25 };                    // guitar placement in body space (layout() steepens it on tall screens)
+const NUT = 392, SADDLE = -73, SCALE_LEN = NUT - SADDLE;
+const fretX = n => NUT - SCALE_LEN * (1 - 2 ** (-n / 12));
+const neckHalf = x => lerp(19, 15.5, (x - 76) / (NUT - 76));
+const strY = (i, x) => lerp((i - 2.5) * 5.4, (i - 2.5) * 4, (x - SADDLE) / SCALE_LEN);
+const POSTS = [[412, -12], [436, -14], [460, -16], [460, 16], [436, 14], [412, 12]];
+const STR_W = [2.6, 2.3, 2, 1.6, 1.3, 1.1];
+const STR_C = ['#ecc890', '#ecc890', '#ecc890', '#f5f0e6', '#f5f0e6', '#f5f0e6'];
+const strings = [];
+
+function buildGuitar() {
+  let d = '';
+  for (let n = 1; n <= 19; n++) { const x = fretX(n); if (x < 80) break; const h = neckHalf(x); d += `M${r1(x)} ${r1(-h)}V${r1(h)}`; }
+  make('path', { d, class: 'fret' }, $('frets'));
+  const mid = n => (fretX(n - 1) + fretX(n)) / 2;
+  for (const n of [3, 5, 7, 9, 15, 17]) make('circle', { cx: r1(mid(n)), cy: 0, r: 3.6, class: 'dot' }, $('frets'));
+  for (const y of [-7, 7]) make('circle', { cx: r1(mid(12)), cy: y, r: 3.4, class: 'dot' }, $('frets'));
+  for (let i = 0; i < 6; i++) make('circle', { cx: -85, cy: r1((i - 2.5) * 5.4), r: 2.6 }, $('pins'));
+  // tuners: shafts + pearl buttons on both headstock edges
+  for (const [px, py] of POSTS) {
+    const sgn = Math.sign(py), edge = 23 + (px - 404) * 0.05;
+    make('path', { d: `M${px} ${sgn * edge}V${sgn * (edge + 9)}`, stroke: '#cfc6b8', 'stroke-width': 4 }, $('tuners'));
+    make('ellipse', { cx: px, cy: sgn * (edge + 13), rx: 6.5, ry: 5, fill: '#f4ecdc', class: 'ol3' }, $('tuners'));
+    make('circle', { cx: px, cy: py, r: 3.6, fill: '#d8d0c4', class: 'ol3' }, $('tuners'));
+  }
+  // strings: static part over the headstock + vibrating part (bridge → nut)
+  const sg = $('strings');
+  for (let i = 0; i < 6; i++) {
+    const yN = strY(i, NUT);
+    make('path', { d: `M${NUT} ${r1(yN)}L${POSTS[i][0]} ${POSTS[i][1]}`, class: 'str', stroke: STR_C[i], 'stroke-width': STR_W[i] }, sg);
+    const shadow = make('path', { class: 'strShadow' }, sg);
+    const lens = make('path', { class: 'strLens', opacity: 0 }, sg);
+    const line = make('path', { class: 'str', stroke: STR_C[i], 'stroke-width': STR_W[i] }, sg);
+    strings.push({ shadow, lens, line, y0: strY(i, SADDLE), y1: yN, last: -1 });
+  }
+}
+
+/* ================= 4. Background (procedural, deterministic) ================= */
+const CLOUDS = [], PETALS = [], STARS = [], TWINKLE = [], CITY = [];
+let beacon = null;
+
+function buildBackground() {
+  const rnd = prng(20261004), rr = (a, b) => a + (b - a) * rnd();
+  // god rays around the sun
+  let ray = '';
+  for (let i = 0; i < 9; i++) {
+    const a = (-178 + i * 22 + rr(-6, 6)) / DEG, w = rr(1.4, 3.6) / DEG, R = 1100;
+    ray += `M0 0L${r1(Math.cos(a - w) * R)} ${r1(Math.sin(a - w) * R)}L${r1(Math.cos(a + w) * R)} ${r1(Math.sin(a + w) * R)}Z`;
+  }
+  make('path', { d: ray, fill: 'url(#gRay)' }, $('rays'));
+  // first stars in the upper sky
+  for (let i = 0; i < 10; i++) {
+    STARS.push({ el: make('use', { href: '#pSpark', class: 'star' }, $('stars')),
+      x: rr(-900, 900), y: rr(28, 250), s: rr(3, 7.5), ph: rr(0, TAU), sp: rr(0.8, 2) });
+  }
+  // long thin lit streaks near the horizon
+  for (let i = 0; i < 7; i++) {
+    const w = rr(180, 520), x = rr(-1500, 1300), y = rr(420, 540), h = rr(6, 13);
+    make('rect', { x: r1(x), y: r1(y), width: r1(w), height: r1(h), rx: h / 2, class: 'streak' }, $('streaks'));
+  }
+  // cel-shaded cumulus clouds (lit from below-right by the setting sun)
+  const specs = [[-640, 250, 400, 130], [180, 160, 500, 160], [800, 300, 340, 100], [-1300, 200, 420, 120], [1350, 220, 380, 110]];
+  specs.forEach(([x, y, w, h], i) => {
+    const puffs = [];
+    const n = Math.max(4, Math.round(w / 48));
+    for (let j = 0; j < n; j++) {
+      const t = (j + 0.5) / n, cx = (t - 0.5) * w;
+      const r = h * (0.3 + 0.46 * Math.sin(Math.PI * t)) * rr(0.85, 1.12);
+      if (r > h * 0.46) puffs.push([cx + rr(-0.35, 0.35) * r, -r * 1.55, r * rr(0.5, 0.7)]);   // towering upper puffs
+      puffs.push([cx, -r * 0.88, r]);                                                            // near-flat base
+    }
+    let lit = '', mid = '', sh = '';
+    for (const [cx, cy, r] of puffs) {
+      lit += circ(cx, cy, r);
+      mid += circ(cx - r * 0.06, cy - r * 0.1, r * 0.9);
+      sh += circ(cx - r * 0.1, cy - r * 0.26, r * 0.76);
+    }
+    const g = make('g', {}, $('clouds'));
+    make('path', { d: lit, class: 'cloudLit' }, g);
+    make('path', { d: mid, class: 'cloudMid' }, g);
+    make('path', { d: sh, class: 'cloudSh' }, g);
+    CLOUDS.push({ el: g, x, y, v: rr(4, 9) * (i % 2 ? 1 : 0.7) });
+  });
+  // skylines: three value-separated layers (aerial perspective); sun-facing rims are added in layout()
+  const city = (id, o) => {
+    const parent = $(id), bld = [];
+    let d = '', wd = '', wd2 = '', td = '';
+    for (let x = -2600; x < 2600;) {
+      const w = rr(o.w[0], o.w[1]), h = rr(o.h[0], o.h[1]), top = 770 - h;
+      bld.push([x, w, top]);
+      d += `M${r1(x)} 770V${r1(top)}H${r1(x + w)}V770Z`;
+      td += `M${r1(x)} ${r1(top)}h${r1(w)}v2.5h${r1(-w)}Z`;
+      if (rnd() < 0.3) d += `M${r1(x + w * 0.2)} ${r1(top)}v${r1(-rr(8, 22))}h${r1(w * 0.45)}V${r1(top)}Z`;
+      if (rnd() < 0.3) { const ax = x + rr(0.2, 0.8) * w; d += `M${r1(ax)} ${r1(top)}v${r1(-rr(18, 46))}h3V${r1(top)}Z`; }
+      if (o.tanks && w > 80 && rnd() < 0.35) {                      // rooftop water tank on legs
+        const tx = x + rr(0.15, 0.55) * w;
+        d += `M${r1(tx)} ${r1(top)}v-16h4v16ZM${r1(tx + 26)} ${r1(top)}v-16h4v16Z`;
+        d += `M${r1(tx - 3)} ${r1(top - 14)}h36v-30q-18 -12 -36 0Z`;
+      }
+      const ws = o.ws, cols = Math.floor((w - 10) / (ws * 2.3)), rows = Math.floor((h - 16) / (ws * 2.8));
+      for (let c = 0; c < cols; c++) for (let r = 0; r < rows; r++) {
+        if (rnd() < o.win) {
+          const wx = x + 7 + c * ws * 2.3, wy = top + 10 + r * ws * 2.8, cell = `M${r1(wx)} ${r1(wy)}h${ws}v${r1(ws * 1.3)}h${-ws}Z`;
+          if (o.cool && rnd() < 0.25) wd2 += cell; else wd += cell;
+          if (o.twinkle && TWINKLE.length < 14 && rnd() < 0.03 && Math.abs(wx) < 900) TWINKLE.push([wx, wy, ws]);
+        }
+      }
+      x += w + (rnd() < o.gap ? rr(24, 90) : rr(-6, 8));
+    }
+    make('path', { d, class: o.cls }, parent);
+    make('path', { d: td, class: 'cityTop', opacity: o.top }, parent);
+    const rims = o.rim ? [o.rim, o.rim * 0.35].map(op => make('path', { class: 'cityRim', opacity: r2(op) }, parent)) : null;
+    make('path', { d: wd, class: o.cls + 'Win' }, parent);
+    if (wd2) make('path', { d: wd2, class: 'cityNearWin2' }, parent);
+    CITY.push({ bld, rims, rw: o.rw });
+  };
+  city('cityFar', { cls: 'cityFar', h: [170, 330], w: [40, 100], win: 0.1, ws: 3, gap: 0, top: 0.35 });
+  city('cityMid', { cls: 'cityMid', h: [120, 250], w: [60, 130], win: 0.12, ws: 4, gap: 0.3, top: 0.4, rim: 0.45, rw: 3 });
+  city('cityNear', { cls: 'cityNear', h: [80, 270], w: [70, 160], win: 0.11, ws: 5, gap: 0.35, top: 0.55, rim: 0.85, rw: 4,
+    tanks: true, cool: true, twinkle: true });
+  TWINKLE.forEach(([x, y, s], i) => { TWINKLE[i] = make('rect', { x: r1(x), y: r1(y), width: s, height: r1(s * 1.3), class: 'cityNearWin' }, $('cityNear')); });
+  // radio mast with aviation light
+  const mast = make('g', { transform: 'translate(-470 0)' }, $('cityNear'));
+  make('path', { d: 'M-16 770L-3 380H3L16 770ZM-12 640H12M-9 540H9M-6 450H6', class: 'cityNear', style: 'stroke:var(--near)', 'stroke-width': 4 }, mast);
+  beacon = make('circle', { cx: 0, cy: 376, r: 6, class: 'beacon' }, mast);
+  // utility pole + sagging power lines
+  const wg = $('wires');
+  make('path', { d: 'M-652 770V40h16V770ZM-720 70h150v9h-150ZM-706 98h122v8h-122Z', class: 'pole' }, wg);
+  let wd = '';
+  const lines = [[-712, 70, 1500, 6, 56], [-664, 70, 1500, 22, 60], [-596, 70, 1500, 36, 56], [-700, 98, 1500, 50, 48], [-600, 98, 1500, 62, 44]];
+  lines.forEach(([x0, y0, x1, y1, sag]) => {
+    wd += `M${x0} ${y0}Q${(x0 + x1) / 2} ${(y0 + y1) / 2 + sag} ${x1} ${y1}`;
+    wd += `M${x0} ${y0}Q${x0 - 400} ${y0 + sag * 0.9} ${x0 - 900} ${y0 - 20}`;
+  });
+  make('path', { d: wd, class: 'wire' }, wg);
+  // rooftop: railing, parapet, floor, props
+  const roof = $('roof');
+  let rd = 'M-2600 630h5200v8h-5200ZM-2600 688h5200v6h-5200Z';
+  for (let x = -2580; x < 2600; x += 118) rd += `M${x} 630h9v116h-9Z`;
+  make('path', { d: rd, class: 'railing' }, roof);
+  make('path', { d: 'M-2600 630.5H2600', class: 'railRim' }, roof);
+  make('rect', { x: -2600, y: 744, width: 5200, height: 34, class: 'parapet' }, roof);
+  make('rect', { x: -2600, y: 742, width: 5200, height: 7, class: 'parapetTop' }, roof);
+  make('rect', { x: -2600, y: 776, width: 5200, height: 240, fill: 'url(#gFloor)' }, roof);
+  let sd = 'M-2600 830H2600M-2600 920H2600';
+  for (let i = -14; i <= 14; i++) sd += `M${i * 120} 778L${i * 330} 1000`;
+  make('path', { d: sd, class: 'seam' }, roof);
+  // AC unit (right) and a potted plant (left), positioned in layout()
+  const ac = make('g', { id: 'acUnit' }, roof);
+  ac.innerHTML = [                                          // cel: lit top + sun rim on the right, shadowed left and base
+    '<ellipse cx="0" cy="8" rx="112" ry="9" class="k" opacity=".25"/>',
+    '<rect x="-74" y="-2" width="22" height="10" class="k"/><rect x="52" y="-2" width="22" height="10" class="k"/>',
+    '<rect x="-90" y="-110" width="180" height="110" rx="8" class="prop"/>',
+    '<path d="M-82 -110H-60V0H-82Q-90 0 -90 -8V-102Q-90 -110 -82 -110ZM-60 -16H90V-8Q90 0 82 0H-60Z" class="propSh"/>',
+    '<circle cx="-14" cy="-56" r="38" class="propLt ol2"/><circle cx="-18" cy="-52" r="27" class="propSh" opacity=".55"/>',
+    '<path d="M-14 -94V-18M-52 -56H24M-41 -83L13 -29M13 -83L-41 -29" class="ol3" opacity=".45"/>',
+    '<circle cx="-14" cy="-56" r="6" class="k" opacity=".7"/>',
+    '<path d="M38 -88H78M38 -72H78M38 -56H78" class="nf" style="stroke:var(--ink)" stroke-width="7" stroke-linecap="round" opacity=".45"/>',
+    '<path d="M38 -91H78M38 -75H78M38 -59H78" class="nf" style="stroke:#5fa0a8" stroke-width="3" stroke-linecap="round"/>',
+    '<rect x="-84" y="-110" width="170" height="7" rx="3.5" class="gd" opacity=".6"/>',
+    '<path d="M86 -102V-10" class="nf" style="stroke:var(--gold)" stroke-width="4" stroke-linecap="round" opacity=".8"/>',
+    '<rect x="-90" y="-110" width="180" height="110" rx="8" class="nf ol"/>',
+  ].join('');
+  const plant = make('g', { id: 'plant' }, roof);
+  plant.innerHTML = [                                       // leaves split into lit / shadow halves, pot shaded on the left
+    '<ellipse cx="0" cy="2" rx="48" ry="7" class="k" opacity=".25"/>',
+    '<path d="M-6 -60C-40 -110 -70 -96 -60 -70C-50 -50 -20 -56 -6 -60ZM4 -64C20 -120 60 -120 56 -90C52 -66 20 -62 4 -64Z',
+    'M0 -60C-10 -130 20 -150 30 -130C36 -110 14 -80 0 -60Z" class="tl"/>',
+    '<path d="M-6 -60C-30 -84 -50 -90 -60 -70C-50 -50 -20 -56 -6 -60ZM4 -64C24 -88 44 -96 56 -90C52 -66 20 -62 4 -64Z',
+    'M0 -60C-10 -130 20 -150 30 -130C16 -120 6 -96 0 -60Z" class="tls"/>',
+    '<path d="M-6 -60C-40 -110 -70 -96 -60 -70C-50 -50 -20 -56 -6 -60ZM4 -64C20 -120 60 -120 56 -90C52 -66 20 -62 4 -64Z',
+    'M0 -60C-10 -130 20 -150 30 -130C36 -110 14 -80 0 -60Z" class="nf ol2"/>',
+    '<path d="M-8 -62Q-34 -78 -54 -74M6 -66Q30 -84 50 -92M2 -64Q8 -100 24 -128" class="nf ol3" opacity=".5"/>',
+    '<path d="M-40 -48H40L30 0H-30Z" class="pot"/><path d="M-40 -48H-16L-12 0H-30Z" class="potSh"/>',
+    '<path d="M-44 -62H44V-48H-44Z" class="potHi"/><path d="M-44 -62H-20V-48H-44Z" class="pot"/>',
+    '<path d="M-40 -48L-30 0H30L40 -48" class="nf ol"/><rect x="-44" y="-62" width="88" height="14" rx="3" class="nf ol2"/>',
+  ].join('');
+}
+
+/* a small flock of birds (wings flap by redrawing a V) */
+const BIRDS = [];
+function buildBirds() {
+  for (let i = 0; i < 4; i++) {
+    BIRDS.push({ el: make('path', { class: 'bird' }, $('birds')), dx: i * 34 + (i % 2) * 10, dy: (i % 2 ? 18 : 0) + i * 6, ph: i * 1.7 });
+  }
+}
+
+/* tail: fluffy curl from overlapping circles (outline layer under fill layer); the tip is a separate, lagging segment */
+function buildTail() {
+  const pts = [[0, 0, 19], [22, -3, 21], [44, -12, 23], [62, -30, 24], [70, -54, 24],
+    [64, -78, 22], [48, -92, 19], [30, -90, 16], [20, -76, 13], [26, -62, 10]];
+  pts.forEach(([x, y, r], i) => {
+    if (i <= 3) { make('circle', { cx: x, cy: y, r: r + 5 }, $('tailO')); make('circle', { cx: x, cy: y, r }, $('tailF')); }
+    if (i >= 3) { make('circle', { cx: x, cy: y, r: r + 5 }, $('tailTipO')); make('circle', { cx: x, cy: y, r }, $('tailTipF')); }
+  });
+}
+
+/* petals, notes, sparkle burst, wind-gust petals */
+const NOTES = [], BURST = [], GUST = [];
+function buildFx() {
+  const rnd = prng(99), rr = (a, b) => a + (b - a) * rnd();
+  for (let i = 0; i < 26; i++) {
+    const front = i >= 17;
+    PETALS.push({
+      el: make('use', { href: '#pPetal', class: front ? 'petal pf' : 'petal pb' }, front ? $('petalsFront') : $('petalsBack')),
+      front, x0: rnd(), y0: rr(0, 1100), vy: front ? rr(60, 95) : rr(26, 48), vx: -(front ? rr(40, 75) : rr(16, 34)),
+      size: front ? rr(9, 14) : rr(4.5, 7.5), spin: rr(-70, 70), flip: rr(1.2, 2.8), ph: rr(0, TAU), sway: rr(14, 40), calm: i % 3 === 0,
+    });
+  }
+  for (let i = 0; i < 18; i++) {
+    GUST.push({ el: make('use', { href: '#pPetal', class: 'petal pf', visibility: 'hidden' }, $('petalsFront')),
+      y: rr(80, 900), d: rr(0, 0.9), sp: rr(0.8, 1.25), size: rr(7, 15), ph: rr(0, TAU), amp: rr(20, 70), spin: rr(300, 700) });
+  }
+  for (let i = 0; i < 14; i++) {
+    const g = make('g', { visibility: 'hidden' }, $('notes'));
+    const ref = i % 3 === 1 ? '#pNote2' : '#pNote1';
+    make('use', { href: ref, class: 'noteO' }, g);
+    make('use', { href: ref, class: `n${(i % 3) + 1}` }, g);
+    NOTES.push({ el: g, on: false });
+  }
+  for (let i = 0; i < 14; i++) {
+    BURST.push({ el: make('use', { href: '#pSpark', class: `spark${(i % 3) + 1}`, visibility: 'hidden' }, $('burst')),
+      a: (i / 14) * TAU + rr(-0.2, 0.2), d: rr(0.65, 1.1), s: rr(9, 20) });
+  }
+}
+
+/* ================= 5. Layout (responsive composition) ================= */
+const L = { vw: 1600, s: 0.95, cx: 0, cy: 0, sunX: 430, sunY: 590, portrait: false, sky: 0, sfx: [0, 0, 0] };
+const charEl = $('char');
+const EXT_L = -198, EXT_TOP = -582, EXT_BOT = 162;        // character extents (char space)
+function layout() {
+  const w = svg.clientWidth || window.innerWidth, h = svg.clientHeight || window.innerHeight;
+  const vw = (1000 * w) / Math.max(1, h);
+  svg.setAttribute('viewBox', `${r1(-vw / 2)} 0 ${r1(vw)} 1000`);
+  const portrait = vw < 1000;
+  L.vw = vw; L.portrait = portrait;
+  // tall screens: a steeper neck narrows the silhouette, so the dog can be drawn bigger
+  G.a = portrait ? -31 : -25;
+  const right = portrait ? 374 : 408, half = (right - EXT_L) / 2, mid = (right + EXT_L) / 2;
+  // keep the crate clear of the control bar on short screens
+  const barTop = (document.querySelector('.bar').getBoundingClientRect().top / Math.max(1, h)) * 1000;
+  const crateBottom = Math.max(760, Math.min(portrait ? 900 : 838, barTop - 12));
+  L.s = Math.min(1, (crateBottom - 24) / (EXT_BOT - EXT_TOP), portrait ? (vw / 2 - 14) / half : 1);
+  L.cy = crateBottom - 162 * L.s;
+  L.cx = portrait ? -mid * L.s : -82 * L.s - vw * 0.035;
+  // short landscape phones: slide the dog right until the title card clears its head
+  const card = document.querySelector('.card').getBoundingClientRect(), u = 1000 / Math.max(1, h);
+  const clear = card.right * u - vw / 2 + 12 - (L.cx - 165 * L.s);
+  if (!portrait && card.bottom * u > L.cy + EXT_TOP * L.s && clear > 0) L.cx = Math.min(L.cx + clear, vw / 2 - 16 - right * L.s);
+  L.sfx = portrait ? [mid, -672, -6] : [392, -446, -12];
+  L.sky = portrait ? 120 : 0;                              // wires drop below the title card on phones
+  L.sunX = portrait ? vw * 0.24 : vw * 0.27;
+  L.sunY = portrait ? 455 : 588;
+  $('sun').setAttribute('transform', `translate(${r1(L.sunX)} ${L.sunY})`);
+  $('haze').setAttribute('transform', `translate(${r1(L.sunX)} ${L.sunY + 30})`);
+  $('acUnit').setAttribute('transform', `translate(${r1(vw / 2 - 170)} 860)`);
+  $('plant').setAttribute('transform', `translate(${r1(-vw / 2 + 120)} 850)`);
+  for (const id of ['acUnit', 'plant']) $(id).setAttribute('display', vw < 1250 ? 'none' : 'inline');
+  // backlit skyline: the edge facing the sun catches a warm rim, strongest near the sun
+  for (const c of CITY) {
+    if (!c.rims) continue;
+    let dn = '', df = '';
+    for (const [x, bw, top] of c.bld) {
+      const dx = L.sunX - (x + bw / 2), ex = dx > 0 ? x + bw - c.rw : x;
+      const seg = `M${r1(ex)} ${r1(top)}h${c.rw}V770h${-c.rw}Z`;
+      if (Math.abs(dx) < 560) dn += seg; else df += seg;
+    }
+    c.rims[0].setAttribute('d', dn); c.rims[1].setAttribute('d', df);
+  }
+  // anime focus lines aimed at the dog's head
+  const hx = L.cx, hy = L.cy - 430 * L.s, R0 = 560 * L.s + 60, R1 = 2400;
+  let rnd = prng(5), d = '';
+  for (let i = 0; i < 72; i++) {
+    const a = (i / 72) * TAU + rnd() * 0.05, r0 = R0 + rnd() * 220, wdt = 0.005 + rnd() * 0.011;
+    d += `M${r1(hx + Math.cos(a) * r0)} ${r1(hy + Math.sin(a) * r0)}`
+      + `L${r1(hx + Math.cos(a - wdt) * R1)} ${r1(hy + Math.sin(a - wdt) * R1)}L${r1(hx + Math.cos(a + wdt) * R1)} ${r1(hy + Math.sin(a + wdt) * R1)}Z`;
+  }
+  $('speed').setAttribute('d', d);
+  // horizontal wind streaks for the sakura gust (tapered wedges, scrolled in render)
+  rnd = prng(17); d = '';
+  for (let i = 0; i < 30; i++) {
+    const y = 60 + rnd() * 880, x = (rnd() - 0.5) * (vw + 600), len = 160 + rnd() * 420, t = 1.2 + rnd() * 2.6;
+    d += `M${r1(x)} ${r1(y)}L${r1(x + len)} ${r1(y - t)}L${r1(x + len)} ${r1(y + t)}Z`;
+  }
+  $('wind').setAttribute('d', d);
+  L.hx = hx; L.hy = hy;
+}
+
+/* ================= 6. Rig pose — a pure function of the beat clock ================= */
+const R = {};
+['dog', 'bodyA', 'bodyB', 'head', 'earL', 'earR', 'ahoge', 'tail', 'tailTip', 'tailTipO', 'footR', 'footL', 'guitar', 'browL', 'browR',
+ 'blush', 'mouthC', 'mouthO', 'pawS', 'pawF', 'thumbF', 'glint', 'logo', 'speed', 'wind', 'flash', 'sunGlow', 'rays',
+ 'cityFar', 'cityMid', 'cityNear', 'wires', 'roof', 'bandTip', 'strap', 'strapF', 'strapS', 'smear', 'sfx'].forEach(id => { R[id] = $(id); });
+const limb = id => { const k = [...$(id).children], get = c => k.find(e => e.classList.contains(c)) || null;
+  return { o: get('limbO'), f: get('limbF'), c: get('limbC'), s: get('limbS'), r: get('limbR') }; };
+const ARM_S = limb('armS'), ARM_FF = limb('armFF'), ARM_FU = limb('armFU');
+const EYES = ['eyeL', 'eyeR'].map(id => { const g = $(id); return { open: g.querySelector('.eyeOpen'), shut: g.querySelector('.eyeShut'),
+  happy: g.querySelector('.eyeHappy'), star: g.querySelector('.eyeStar'), pupil: g.querySelector('.pupil'), state: '' }; });
+const SH_S = [-92, -230], SH_F = [90, -230];               // shoulders (body space)
+const ELB_S = [-38, -80];                                  // strumming elbow rests on the guitar's upper bout (guitar space)
+const UPPER = 96, FORE = 100;
+
+// write an attribute only when its value changed (most rig parts are still between beats)
+function set(el, k, v) { const c = el.__a || (el.__a = {}); if (c[k] !== v) { c[k] = v; el.setAttribute(k, v); } }
+function setVis(el, on) { set(el, 'visibility', on ? 'visible' : 'hidden'); }
+
+function warp(f) { return f < SWING ? (f / SWING) * 0.5 : 0.5 + ((f - SWING) / (1 - SWING)) * 0.5; }
+function strumPose(beat) {
+  const bi = Math.floor(beat), u = warp(beat - bi);
+  const c = bi * 2 + u * 2, n = Math.floor(c);          // strings are crossed at integer eighth-slots
+  const w = smooth(clamp((c - n - 0.3) / 0.4, 0, 1));   // change stroke size only at the turn-around
+  const size = j => STROKE_SIZE[((j % 8) + 8) % 8];
+  const amp = lerp(size(n), size(n + 1), w);
+  const sn = Math.sin(TAU * u), shaped = Math.sign(sn) * Math.abs(sn) ** 0.6;   // fast through strings, hangs at ends
+  return { sweep: amp * shaped, flick: -16 * Math.cos(TAU * u) * amp, ghost: clamp((1 - amp) / 0.32, 0, 1), real: size(Math.round(c)) > 0.9 };
+}
+function strumWrist(sp) {                                  // guitar space: forearm swings about the resting elbow
+  const phi = (44 + (sp.sweep > 0 ? 17 : 26) * sp.sweep) / DEG;          // the up position clears the bass strings
+  const reach = FORE - sp.ghost * 6 - 16 * Math.max(0, -sp.sweep) ** 2;  // ghosts pass above the strings; lift at the top
+  return { phi, W: [ELB_S[0] + Math.cos(phi) * reach, ELB_S[1] + Math.sin(phi) * reach] };
+}
+function fretPose(beat) {
+  const bar = Math.floor(beat / 4), inBar = beat - bar * 4;
+  const k = clamp((inBar - 3.62) / 0.34, 0, 1);          // slide right before the next downbeat
+  const a = CHORDS[bar % 4].pos, b = CHORDS[(bar + 1) % 4].pos;
+  return { fx: fretX(lerp(a, b, easeInOut(k)) + 0.5), hop: Math.sin(Math.PI * k), look: smooth(clamp((inBar - 3.3) / 0.4, 0, 1)) };
+}
+function ik(S, T, a, b) {                                 // two-bone IK, elbow bends clockwise (down/out)
+  const dx = T[0] - S[0], dy = T[1] - S[1];
+  const d = clamp(Math.hypot(dx, dy), Math.abs(a - b) + 1, a + b - 0.5);
+  const ang = Math.atan2(dy, dx);
+  const A = Math.acos(clamp((a * a + d * d - b * b) / (2 * a * d), -1, 1));
+  const E = [S[0] + Math.cos(ang + A) * a, S[1] + Math.sin(ang + A) * a];
+  const W = [S[0] + Math.cos(ang) * d, S[1] + Math.sin(ang) * d];   // clamped reach keeps the paw attached
+  return { E, W };
+}
+const pt = p => `${r1(p[0])} ${r1(p[1])}`;
+function sideOffset(A, B, k) {                             // normal of a segment, flipped toward the shadow side (away from the sun)
+  const dx = B[0] - A[0], dy = B[1] - A[1], l = Math.hypot(dx, dy) || 1;
+  let nx = -dy / l, ny = dx / l;
+  if (nx * -0.8 + ny * 0.6 < 0) { nx = -nx; ny = -ny; }
+  return [nx * k, ny * k];
+}
+function drawLimb(L_, S, E, W, sockFrom, merge = 0.4) {
+  const tail = `L${pt(E)}${W ? 'L' + pt(W) : ''}`;
+  set(L_.o, 'd', `M${pt([lerp(S[0], E[0], merge), lerp(S[1], E[1], merge)])}${tail}`);  // no outline at the shoulder
+  set(L_.f, 'd', `M${pt(S)}${tail}`);
+  const last = W || E, prev = W ? E : S;
+  const shift = k => { const [ox, oy] = sideOffset(prev, last, k);
+    return `M${pt([S[0] + ox, S[1] + oy])}L${pt([E[0] + ox, E[1] + oy])}${W ? 'L' + pt([W[0] + ox, W[1] + oy]) : ''}`; };
+  set(L_.s, 'd', shift(10.5));                             // hard cel shadow band, flush with the far edge
+  if (L_.r) set(L_.r, 'd', shift(-15));                    // thin warm rim on the sun side
+  if (L_.c && W) set(L_.c, 'd', `M${pt([lerp(E[0], W[0], sockFrom), lerp(E[1], W[1], sockFrom)])}L${pt(W)}`);
+}
+// the headbang curve: lowest on the beat, eases up, then whips down into the next beat (after draft b)
+const nodCurve = p => (p < 0.62 ? 1 - easeOut(p / 0.62) : ((p - 0.62) / 0.38) ** 2);
+const frac = x => x - Math.floor(x);
+const env = (x, len, a = 0.18, r = 0.3) => smooth(clamp(x / a, 0, 1)) * (1 - smooth(clamp((x - len) / r, 0, 1)));
+
+// anime moments: every 4 bars on the Am7 bar, rotating hop → glint → sakura gust
+function momentAt(beat) {
+  const bar = Math.floor(beat / 4), mb = bar - ((((bar - 3) % 4) + 4) % 4);
+  return { m: mb >= 0 ? beat - mb * 4 : 99, kind: mb >= 0 ? ((mb - 3) / 4) % 3 : -1,
+    pre: beat - (mb + 4) * 4, nextKind: ((mb + 1) / 4) % 3 };
+}
+
+let lastBar = -1;
+const chordEls = [...$('chords').children];
+
+function render(song) {
+  const mo = reduced ? 0.35 : 1, big = !reduced;          // motion amount; big FX only without reduced motion
+  const beat = song / SPB, bi = Math.floor(beat), bf = beat - bi;
+  const bar = Math.floor(beat / 4), bib = bi - bar * 4;
+  const accent = ACCENT[bib];
+  const imp = accent * Math.exp(-bf * 6);                 // beat impulse
+  const M = momentAt(beat), m = M.m;
+  const hopK = M.kind === 0 ? m : 99, glintK = M.kind === 1 ? m : 99, gustK = M.kind === 2 ? m : 99;
+  const crouch = big && M.nextKind === 0 && M.pre > -1 ? Math.sin((Math.PI / 2) * (M.pre + 1)) : 0;
+  // expression timing (deterministic pseudo-random)
+  const hc = Math.floor(song / 7), hp = song - hc * 7 - 2.5;
+  const joy = Math.max(hopK < 3 ? env(hopK * SPB, 2.3 * SPB) : 0, gustK < 3 ? env(gustK * SPB, 2.4 * SPB) : 0,
+    hash(hc + 3) < 0.4 && hp > 0 ? env(hp, 1.1) : 0);
+  const starry = glintK < 3 && env(glintK * SPB - 0.1, 2.2 * SPB) > 0.5;
+  const happy = joy > 0.5 || crouch > 0.4 || hopK < 0.3;   // hopK bridges crouch → hop joy (no 1-frame open-eye pop)
+  const bc = Math.floor(song / 3.1), bt = song - (bc * 3.1 + 0.3 + hash(bc) * 2.2);
+  let blink = bt > 0 && bt < 0.16 ? Math.sin((Math.PI * bt) / 0.16) : 0;
+  if (hash(bc + 77) < 0.28 && bt > 0.26 && bt < 0.42) blink = Math.sin((Math.PI * (bt - 0.26)) / 0.16);
+
+  // whole dog: crouch on beat 4, hop off the crate on the downbeat, squash on landing
+  let hopY = 0, sy = 1 - 0.05 * crouch;
+  if (big && hopK < 1.4) {
+    const air = hopK / 0.5, land = hopK - 0.5;
+    if (air < 1) { hopY = 34 * 4 * air * (1 - air); sy = 1 + 0.05 * (1 - air); }
+    else sy = 1 - 0.075 * Math.exp(-land * 7) * Math.cos(land * 9);
+  }
+  set(R.dog, 'transform', `translate(0 ${r2(-hopY)}) scale(${(1 + (1 - sy) * 0.6).toFixed(4)} ${sy.toFixed(4)})`);
+
+  // body: sway, breathing, squash on accents
+  const breath = Math.sin((TAU * song) / 3.4);
+  const sway = mo * (1.4 * Math.sin((TAU * beat) / 8) + 0.5 * imp);
+  const sq = mo * 0.016 * imp;
+  set(R.bodyA, 'transform', `rotate(${r2(sway)}) scale(${(1 + sq * 0.6 + 0.004 * breath * mo).toFixed(4)} ${(1 - sq + 0.009 * breath * mo).toFixed(4)})`);
+  set(R.bodyB, 'transform', `rotate(${r2(sway)}) translate(0 ${r2(sq * 300 - breath * 2.7 * mo)})`);
+
+  // head: headbang on every beat (deeper on 1 and 3), slow tilt across the bar
+  // the whip-down already uses the next beat's depth, so the head doesn't snap at the beat boundary
+  const nod = mo * (11 + 8 * (bf < 0.62 ? accent : ACCENT[(bib + 1) % 4])) * nodCurve(bf) - 3 * mo;
+  const gust = gustK < 3 ? env(gustK * SPB, 2.5 * SPB, 0.12, 0.5) : 0;
+  const tilt = mo * 3.4 * Math.sin((TAU * beat) / 4 + 0.6) - 3 * joy - 4 * gust * mo;
+  set(R.head, 'transform', `translate(0 ${r2(-402 + nod)}) rotate(${r2(tilt)} 0 90)`);
+  // ears + ahoge: two time-shifted copies of the nod give a floppy lag with overshoot; the gust blows them back
+  const lag = nodCurve(frac(bf - 0.12)) - 0.45 * nodCurve(frac(bf - 0.27));
+  const flutter = gust * mo * 7 * Math.sin(song * 31);
+  const eL = mo * 9 * lag * (0.55 + 0.45 * accent), eR = mo * 9 * nodCurve(frac(bf - 0.16)) * (0.55 + 0.45 * accent) - mo * 4 * nodCurve(frac(bf - 0.3));
+  const perk = 5 * joy - 6 * crouch;
+  set(R.earL, 'transform', `rotate(${r2(-eL + perk - tilt * 0.3 - 14 * gust * mo + flutter)} -100 -90)`);
+  set(R.earR, 'transform', `rotate(${r2(eR - perk - tilt * 0.3 + 10 * gust * mo - flutter)} 100 -90)`);
+  set(R.ahoge, 'transform', `rotate(${r2(mo * 14 * lag - tilt - 18 * gust * mo + flutter * 1.5)} 4 -138)`);
+  set(R.bandTip, 'transform', `rotate(${r2(mo * (2.5 * lag + gust * (16 + 6 * Math.sin(song * 23))))} 0 -274)`);
+  // tail: wag with a lagging, overshooting tip
+  const wagAmp = mo * (9 + 5 * joy + 6 * gust);
+  set(R.tail, 'transform', `translate(104 -22) rotate(${r2(wagAmp * Math.sin((TAU * beat) / 2) - 4)})`);
+  const tip = `rotate(${r2(wagAmp * 1.1 * Math.sin((TAU * beat) / 2 - 1.2))} 62 -30)`;
+  set(R.tailTip, 'transform', tip); set(R.tailTipO, 'transform', tip);
+  // feet: right foot taps every beat, left on 1 and 3
+  const tapR = mo * ((1 + Math.cos(TAU * (bf - 0.5))) / 2) ** 3;
+  set(R.footR, 'transform', `translate(0 ${r2(-7 * tapR)}) rotate(${r2(-7 * tapR)} 82 112)`);
+  const tapL = bib % 2 ? 0 : tapR * 0.6;
+  set(R.footL, 'transform', `translate(0 ${r2(-5 * tapL)})`);
+
+  // face: eyes (open / blink / ^ ^ / ✦ stars), pupils glance at the fretting paw before a chord change
+  const fp = fretPose(beat);
+  const shut = happy || starry ? 0 : blink;
+  for (const e of EYES) {
+    const st = starry ? 'star' : happy ? 'happy' : shut > 0.72 ? 'shut' : 'open';
+    if (st !== e.state) {
+      setVis(e.open, st === 'open'); setVis(e.shut, st === 'shut'); setVis(e.happy, st === 'happy'); setVis(e.star, st === 'star');
+      e.state = st;
+    }
+    if (st === 'open') {
+      set(e.open, 'transform', `scale(1 ${r2(1 - 0.9 * shut)})`);
+      set(e.pupil, 'transform', `translate(${r1(4 * fp.look * (1 - fp.hop * 0.3))} ${r1(2 * fp.look)})`);
+    }
+  }
+  const browUp = -7 * joy - 2 * imp - 5 * (starry ? 1 : 0) + 4 * crouch;
+  set(R.browL, 'transform', `translate(0 ${r2(browUp)}) rotate(${r1(14 - 10 * joy)} -56 -80)`);
+  set(R.browR, 'transform', `translate(0 ${r2(browUp)}) rotate(${r1(-14 + 10 * joy)} 56 -80)`);
+  const open = joy > 0.5 || starry;
+  setVis(R.mouthC, !open); setVis(R.mouthO, open);
+  set(R.blush, 'opacity', r2(0.75 + 0.25 * Math.max(joy, starry ? 1 : 0)));
+
+  // guitar: tiny dip on accents, raised to show off during the glint moment
+  const raise = glintK < 3 ? env(glintK * SPB, 2.35 * SPB, 0.25, 0.4) : 0;   // starts from 0: no pop at the downbeat
+  const ga = G.a - 0.8 * mo * imp - 6 * mo * raise;
+  set(R.guitar, 'transform', `translate(${G.x} ${G.y}) rotate(${r2(ga)})`);
+  const ca = Math.cos(ga / DEG), sa = Math.sin(ga / DEG);
+  const g2b = (x, y) => [G.x + ca * x - sa * y, G.y + sa * x + ca * y];
+  const sA = g2b(88, -21), strap = `M${pt(sA)}Q${pt([(sA[0] + 80) / 2 - 12, (sA[1] - 276) / 2 + 4])} 80 -276`;
+  set(R.strap, 'd', strap); set(R.strapF, 'd', strap); set(R.strapS, 'd', strap);
+
+  // strumming arm: forearm swings around the resting elbow, paw crosses the strings over the sound hole
+  const sp = strumPose(beat), sw = strumWrist(sp);
+  const Es = g2b(ELB_S[0], ELB_S[1]), Ws = g2b(sw.W[0], sw.W[1]);
+  drawLimb(ARM_S, SH_S, Es, Ws, 0.62);
+  set(R.pawS, 'transform', `translate(${pt(Ws)}) rotate(${r2(sw.phi * DEG + ga + sp.flick)}) scale(${r2(1 + 0.05 * sp.ghost)})`);
+  // motion smear (after draft c): trails sampled backwards along the stroke, only on real strokes through the strings
+  const dt = 0.035, speed = Math.abs(sp.sweep - strumPose(beat - dt).sweep);
+  const smearOn = big && sp.real && speed > 0.12 ? clamp((speed - 0.12) / 0.25, 0, 1) : 0;
+  if (smearOn > 0) {
+    const trail = [0, 1, 2, 3, 4].map(j => { const p = strumPose(beat - j * dt); return [strumWrist(p), p.flick / DEG]; });
+    let d = '';
+    for (const r of [6, 20, 34]) {
+      trail.forEach(([q, fl], j) => { const a = q.phi + fl; d += `${j ? 'L' : 'M'}${pt(g2b(q.W[0] + Math.cos(a) * r, q.W[1] + Math.sin(a) * r))}`; });
+    }
+    set(R.smear, 'd', d);
+    set(R.smear, 'stroke-width', r1(2 + 2.5 * smearOn));
+  }
+  set(R.smear, 'opacity', r2(0.75 * smearOn));
+
+  // fretting arm: upper arm behind the neck, forearm + paw in front, thumb peeking over the neck
+  const press = 1 - 0.035 * Math.exp(-bf * 8);
+  const Wf = g2b(fp.fx + 2, 27 - fp.hop * 4);
+  const aF = ik(SH_F, Wf, UPPER + 6, FORE);
+  drawLimb(ARM_FU, SH_F, aF.E, null);
+  drawLimb(ARM_FF, aF.E, aF.E, aF.W, 0.45);
+  const fretT = `translate(${G.x} ${G.y}) rotate(${r2(ga)}) translate(${r1(fp.fx)} ${r2(-fp.hop * 4)})`;
+  set(R.pawF, 'transform', `${fretT} scale(${r2((1 + 0.08 * fp.hop) * press)})`);
+  set(R.thumbF, 'transform', `${fretT} translate(10 ${r2(-fp.hop * 3)})`);
+
+  // strings: only the part between bridge and fret vibrates; a soft lens shows the blur, then decays
+  const kNow = firstEventFrom(song) - 1;
+  for (let i = 0; i < 6; i++) {
+    let amp = 0, fret = CHORDS[bar % 4].frets[i];
+    for (let k = kNow; k >= Math.max(0, kNow - 6); k--) {
+      const ev = eventAt(k), hit = strokeStrings(ev).find(h => h[0] === i);
+      if (!hit) continue;
+      const th = ev.t + hit[1];
+      if (th > song) continue;
+      amp = ev.vel * Math.exp(-(song - th) * 2.6);
+      fret = ev.chord.frets[i];
+      break;
+    }
+    const st = strings[i], live = amp >= 0.02;
+    if (!live && st.last === 0) continue;
+    const xf = fret ? fretX(fret) : NUT, yf = strY(i, xf), xm = (SADDLE + xf) / 2, ym = (st.y0 + yf) / 2;
+    const A = live ? amp * 4.4 : 0, off = live ? A * Math.sin(song * TAU * (21 + i * 1.9)) : 0;
+    const path = (dy, bow) => `M-85 ${r1(st.y0 + dy)}L${SADDLE} ${r1(st.y0 + dy)}`
+      + `Q${r1(xm)} ${r1(ym + bow + dy)} ${r1(xf)} ${r1(yf + dy)}L${NUT} ${r1(st.y1 + dy)}`;
+    set(st.line, 'd', path(0, 2 * off));
+    set(st.shadow, 'd', path(1.8, 2 * off));
+    const lens = `M${SADDLE} ${r1(st.y0)}Q${r1(xm)} ${r1(ym + 2 * A)} ${r1(xf)} ${r1(yf)}Q${r1(xm)} ${r1(ym - 2 * A)} ${SADDLE} ${r1(st.y0)}Z`;
+    set(st.lens, 'd', live ? lens : 'M0 0');
+    set(st.lens, 'opacity', r2(live ? 0.12 + 0.3 * amp : 0));
+    st.last = live ? 1 : 0;
+  }
+
+  // music notes: spawned by strokes (deterministic), rise beside the dog (never over the face or strings), sway and fade
+  const used = new Array(NOTES.length).fill(false);
+  for (let k = kNow; k >= Math.max(0, kNow - 18); k--) {
+    const ev = eventAt(k), age = song - ev.t;
+    if (age > 2.8) break;
+    const mk = momentAt(ev.t / SPB), bonus = mk.kind === 1 && mk.m < 3 ? 0.4 : 0;
+    if (!(k % EPB === 0 || hash(k * 3.1) < 0.34 + bonus)) continue;
+    const slot = k % NOTES.length, n = NOTES[slot];
+    used[slot] = true;
+    const side = hash(k) < 0.5 ? -1 : 1, p = age / 2.8;
+    const x = (side < 0 ? -218 - age * 64 : 236 + age * 52) + Math.sin(age * 3 + k) * 14;
+    const y = (side < 0 ? -176 : -372) - age * 112 - easeOut(Math.min(1, age * 2)) * 40;
+    const pop = age < 0.25 ? easeOut(age / 0.25) * (1 + 0.25 * Math.sin((age / 0.25) * Math.PI)) : 1;
+    const op = Math.min(1, age * 8) * (1 - smooth(clamp((p - 0.65) / 0.35, 0, 1)));
+    set(n.el, 'transform', `translate(${r1(x)} ${r1(y)}) rotate(${r1(Math.sin(age * 2.4 + k) * 16)}) scale(${r2(pop * (1.05 + hash(k + 5) * 0.45))})`);
+    set(n.el, 'opacity', r2(op));
+    if (!n.on) { setVis(n.el, true); n.on = true; }
+  }
+  NOTES.forEach((n, i) => { if (!used[i] && n.on) { setVis(n.el, false); n.on = false; } });
+
+  // anime moments: focus lines, flash, zoom punch, sparkle burst, glint, SFX lettering, wind
+  const focus = big ? Math.max(hopK < 1.4 ? (hopK < 0.05 ? hopK / 0.05 : 1 - smooth((hopK - 0.05) / 1.35)) * 0.9 : 0,
+    glintK < 1.2 ? Math.sin(Math.PI * clamp(glintK / 1.2, 0, 1)) * 0.35 : 0) : 0;
+  const zoom = big && hopK < 0.8 ? 0.05 * Math.sin((Math.PI * hopK) / 0.8) : 0;
+  const S = L.s * (1 + zoom);
+  set(charEl, 'transform', `translate(${r1(L.cx)} ${r1(L.cy + 162 * (L.s - S))}) scale(${S.toFixed(4)})`);
+  set(R.speed, 'opacity', r2(focus));
+  if (focus > 0) set(R.speed, 'transform', `rotate(${r2((hash(Math.floor(m * 10)) - 0.5) * 3)} ${r1(L.hx)} ${r1(L.hy)})`);
+  const flash = hopK < 0.4 ? 0.3 * (1 - hopK / 0.4) : glintK > 0.1 && glintK < 0.5 ? 0.14 * Math.sin((Math.PI * (glintK - 0.1)) / 0.4) : 0;
+  set(R.flash, 'opacity', big ? r2(flash) : 0);
+  const bk = Math.min(hopK, glintK), bp = bk / 2.6;
+  BURST.forEach((b, i) => {
+    if (bp >= 1) { if (b.on) { setVis(b.el, false); b.on = false; } return; }
+    if (!b.on) { setVis(b.el, true); b.on = true; }
+    const ring = glintK < hopK, rad = (ring ? 60 + 130 * easeOut(bp) : 80 + 220 * easeOut(bp)) * b.d;
+    const sc = b.s * Math.sin(Math.PI * clamp(bp * 1.15 - i * 0.012, 0, 1));
+    const cxy = ring ? g2b(474, 0) : [0, -440];
+    const bx = cxy[0] + Math.cos(b.a) * rad, by = cxy[1] + Math.sin(b.a) * rad * 0.8;
+    set(b.el, 'transform', `translate(${r1(bx)} ${r1(by)}) rotate(${r1(bp * 120)}) scale(${r2(Math.max(0.01, sc))})`);
+  });
+  const gp = (glintK - 0.1) / 1.1;
+  set(R.glint, 'opacity', gp > 0 && gp < 1 ? r2(Math.sin(Math.PI * gp) * 0.95) : 0);
+  if (gp > 0 && gp < 1) set(R.glint, 'transform', `translate(${r1(lerp(-180, 300, easeInOut(gp)))} 0) rotate(24)`);
+  const lg = Math.max(bf < 0.3 && bib === 0 ? Math.sin((Math.PI * bf) / 0.3) : 0, gp > 0.5 && gp < 1.6 ? 1.6 * Math.sin(Math.PI * (gp - 0.5) / 1.1) : 0);
+  set(R.logo, 'transform', `translate(474 0) rotate(${r1(lg * 45)}) scale(${r2(7 + lg * 7)})`);
+  // SFX lettering pops with overshoot on the hop, holds, then fades
+  const sfxOn = hopK < 1.9;
+  setVis(R.sfx, sfxOn);
+  if (sfxOn) {
+    const pop = hopK < 0.3 ? easeOut(hopK / 0.3) * (1 + 0.35 * Math.sin(Math.PI * hopK / 0.3)) : 1;
+    set(R.sfx, 'transform', `translate(${r1(L.sfx[0])} ${r1(L.sfx[1] - (big ? hopK * 14 : 0))}) rotate(${L.sfx[2]}) scale(${r2(Math.max(0.01, pop))})`);
+    set(R.sfx, 'opacity', r2(1 - smooth(clamp((hopK - 1.4) / 0.5, 0, 1))));
+  }
+  // sakura gust: wind streaks race across, a burst of petals rides them
+  const windOp = big ? 0.5 * gust : 0;
+  set(R.wind, 'opacity', r2(windOp));
+  if (windOp > 0) set(R.wind, 'transform', `translate(${r1(L.vw * 0.6 - gustK * SPB * 1400)} 0)`);
+  GUST.forEach(g => {
+    const q = (gustK - g.d) / (2.6 * g.sp);
+    const on = big && q > 0 && q < 1;
+    setVis(g.el, on);
+    if (!on) return;
+    const x = L.vw / 2 + 80 - easeInOut(q) * (L.vw + 260), y = g.y + Math.sin(q * 7 + g.ph) * g.amp - q * 90;
+    const flip = 0.3 + 0.7 * Math.abs(Math.cos(q * 9 + g.ph));
+    set(g.el, 'transform', `translate(${r1(x)} ${r1(y)}) rotate(${r1(g.spin * q + g.ph * 57)}) scale(${r2(g.size * flip)} ${r2(g.size)})`);
+  });
+
+  // ambient: parallax drift, clouds, petals, stars, city lights
+  const cam = reduced ? 0 : 14 * Math.sin((TAU * song) / 26);
+  set(R.cityFar, 'transform', `translate(${r1(-cam * 0.7)} 0)`);
+  set(R.cityMid, 'transform', `translate(${r1(-cam * 0.55)} 0)`);
+  set(R.wires, 'transform', `translate(${r1(-cam * 0.45)} ${L.sky})`);
+  set(R.cityNear, 'transform', `translate(${r1(-cam * 0.35)} 0)`);
+  set(R.roof, 'transform', `translate(${r1(-cam * 0.12)} 0)`);
+  const cspan = Math.max(2900, L.vw + 1100);               // wrap span wider than any viewport: no pop-in
+  CLOUDS.forEach(c => {
+    const x = ((((c.x + song * c.v * mo - cam * 0.9 + cspan / 2) % cspan) + cspan) % cspan) - cspan / 2;
+    set(c.el, 'transform', L.portrait ? `translate(${r1(x)} ${c.y + 92}) scale(.72)` : `translate(${r1(x)} ${c.y})`);   // phones: clear of the title card
+  });
+  set(R.rays, 'transform', `rotate(${r2(mo * 2.5 * Math.sin((TAU * song) / 30))}) scale(${r2(1 + 0.08 * gust)})`);
+  set(R.sunGlow, 'opacity', r2(0.86 + 0.14 * Math.max(imp, gust)));
+  const span = L.vw + 260;
+  // front petals thin out over the face and guitar so they never hide the character
+  const zones = [[L.hx, L.hy, 270 * L.s], [L.cx - 20 * L.s, L.cy - 120 * L.s, 230 * L.s]];
+  PETALS.forEach(p => {
+    if (reduced && !p.calm) { if (p.on !== false) { setVis(p.el, false); p.on = false; } return; }
+    if (p.on === false) { setVis(p.el, true); p.on = true; }
+    const t = song * (reduced ? 0.5 : 1);
+    let x = p.x0 * span + p.vx * t + Math.sin(t * 0.9 + p.ph) * p.sway + (p.front ? cam * 0.4 : -cam * 0.3);
+    x = (((x % span) + span) % span) - span / 2;
+    const y = ((p.y0 + p.vy * t) % 1100) - 50;
+    const fl = Math.cos(t * p.flip + p.ph);
+    const sx = p.size * (0.2 + 0.8 * Math.abs(fl));
+    set(p.el, 'transform', `translate(${r1(x)} ${r1(y)}) rotate(${r1(p.spin * t + p.ph * 57)}) scale(${r2(sx)} ${r2(p.size)})`);
+    if (p.front) {
+      let k = 9;
+      for (const [zx, zy, zr] of zones) k = Math.min(k, Math.hypot(x - zx, y - zy) / zr);
+      set(p.el, 'opacity', r2(0.12 + 0.8 * smooth(clamp((k - 0.7) / 0.4, 0, 1))));
+    }
+  });
+  STARS.forEach(s => {
+    const tw = 0.25 + 0.75 * Math.abs(Math.sin(song * s.sp + s.ph)) ** 3;
+    set(s.el, 'transform', `translate(${r1(s.x - cam)} ${s.y}) scale(${r2(s.s * (0.6 + 0.4 * tw))})`);
+    set(s.el, 'opacity', r2(tw));
+  });
+  TWINKLE.forEach((el, i) => set(el, 'opacity', hash(Math.floor(song / 2.3 + i * 0.37) + i * 13) > 0.45 ? 0.9 : 0.12));
+  set(beacon, 'opacity', song % 1.6 < 0.22 ? 1 : 0.18);
+  const fp2 = clamp(((song + 8) % 24) / 14, 0, 1);         // flock crosses for 14 s of every 24 s
+  BIRDS.forEach(b => {
+    const x = lerp(-L.vw / 2 - 160, L.vw / 2 + 80, fp2) + b.dx - cam * 0.5, y = 300 - fp2 * 120 + b.dy + Math.sin(song * 1.3 + b.ph) * 4 + L.sky * 0.5;
+    const f = Math.sin(song * 9 + b.ph) * 7 * mo;
+    set(b.el, 'd', `M${r1(x - 9)} ${r1(y - f)}Q${r1(x - 4)} ${r1(y - f * 0.3)} ${r1(x)} ${r1(y + 2)}`
+      + `Q${r1(x + 4)} ${r1(y - f * 0.3)} ${r1(x + 9)} ${r1(y - f)}`);
+  });
+
+  // chord indicator (only touches the DOM on bar change)
+  if (bar !== lastBar) { lastBar = bar; chordEls.forEach((li, i) => li.classList.toggle('on', i === bar % 4)); }
+}
+
+/* ================= 7. Audio — Karplus–Strong plucked strings ================= */
+const LOOKAHEAD = 0.15, MASTER = 0.9, FRAME = 0.016;
+const audio = { ctx: null, master: null, down: null, up: null, bufs: new Map(), jobs: [], voices: [], last: [],
+  on: false, nextK: 0, timer: 0, t0: 0, s0: 0 };
+const midiHz = m => 440 * 2 ** ((m - 69) / 12);
+
+// generators: rendered in slices by pumpJobs(), so building the samples never stalls a frame
+function* ksBuffer(ctx, midi) {
+  const sr = ctx.sampleRate, f = midiHz(midi);
+  const n = Math.floor(sr * (midi <= 45 ? 2.8 : 1.7)), out = new Float32Array(n);   // bass roots ring through the bar
+  // loop delay = N − ½ (two-tap average of the oldest samples) + all-pass fraction (kept in 0.1…1.1)
+  const period = sr / f, N = Math.floor(period + 0.4), fr = period + 0.5 - N;
+  const C = (1 - fr) / (1 + fr);
+  const rho = 0.001 ** (1 / (f * (5 - (midi - 40) * 0.06)));       // per-period loss → T60 (low strings ring longer)
+  const buf = new Float32Array(N), rnd = prng(midi * 31);
+  let lp = 0, mean = 0;
+  for (let i = 0; i < N; i++) { lp += (rnd() * 2 - 1 - lp) * 0.5; buf[i] = lp; mean += lp; }   // soft pick: low-passed noise
+  mean /= N;
+  for (let i = 0; i < N; i++) buf[i] -= mean;
+  let idx = 0, apX = 0, apY = 0, peak = 1e-6;
+  for (let i = 0; i < n; i++) {
+    const nx = idx + 1 === N ? 0 : idx + 1, a = buf[idx];
+    out[i] = a;
+    const x = rho * 0.5 * (a + buf[nx]);
+    const y = C * x + apX - C * apY; apX = x; apY = y;
+    buf[idx] = y; idx = nx;
+    const ab = a < 0 ? -a : a; if (ab > peak) peak = ab;
+    if ((i & 8191) === 8191) yield;
+  }
+  const fade = Math.floor(sr * 0.08), g = 0.9 / peak;
+  for (let i = 0; i < n; i++) out[i] *= g * (i > n - fade ? (n - i) / fade : 1);
+  const ab = ctx.createBuffer(1, n, sr);
+  ab.copyToChannel(out, 0);
+  return ab;
+}
+function* makeIR(ctx) {                                    // small warm room
+  const sr = ctx.sampleRate, len = Math.floor(sr * 2.2), ir = ctx.createBuffer(2, len, sr);
+  for (let c = 0; c < 2; c++) {
+    const d = ir.getChannelData(c), rnd = prng(c + 9);
+    let lp = 0;
+    for (let i = 0; i < len; i++) {
+      const t = i / sr; lp += (rnd() * 2 - 1 - lp) * 0.3; d[i] = lp * Math.exp(-t * 2.8) * Math.min(1, t / 0.015);
+      if ((i & 16383) === 16383) yield;
+    }
+  }
+  return ir;
+}
+function pumpJobs() {                                      // ≤ 6 ms of synthesis per task, then yield to rendering
+  const t0 = performance.now();
+  while (audio.jobs.length && performance.now() - t0 < 6) {
+    const job = audio.jobs[0], r = job.gen.next();
+    if (r.done) { job.done(r.value); audio.jobs.shift(); }
+  }
+  if (audio.jobs.length) setTimeout(pumpJobs, 0);
+}
+function initAudio() {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return false;
+  const ctx = new AC({ latencyHint: 'interactive' });
+  const tone = (hz) => { const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = hz; f.Q.value = 0.4; return f; };
+  const down = tone(3800), up = tone(2300);                // upstrokes sound darker (after draft c)
+  const body = ctx.createBiquadFilter(); body.type = 'peaking'; body.frequency.value = 120; body.Q.value = 1; body.gain.value = 3;
+  const verb = ctx.createConvolver();
+  const wet = ctx.createGain(); wet.gain.value = 0.3;
+  const comp = ctx.createDynamicsCompressor();
+  comp.threshold.value = -16; comp.knee.value = 10; comp.ratio.value = 4; comp.attack.value = 0.004; comp.release.value = 0.25;
+  const master = ctx.createGain(); master.gain.value = 0;
+  down.connect(body); up.connect(body); body.connect(comp); body.connect(verb); verb.connect(wet); wet.connect(comp);
+  comp.connect(master); master.connect(ctx.destination);
+  // queue the samples: the chord that is playing now first, the reverb last
+  const seen = new Set(), bar = Math.floor(song / BAR);
+  for (let i = 0; i < 4; i++) {
+    CHORDS[(bar + i) % 4].frets.forEach((f, s) => {
+      const m = TUNING[s] + f;
+      if (!seen.has(m)) { seen.add(m); audio.jobs.push({ gen: ksBuffer(ctx, m), done: b => audio.bufs.set(m, b) }); }
+    });
+  }
+  audio.jobs.push({ gen: makeIR(ctx), done: b => { verb.buffer = b; } });
+  Object.assign(audio, { ctx, down, up, master, last: new Array(6).fill(null) });
+  pumpJobs();
+  return true;
+}
+function playNote(s, midi, when, gain, bus) {
+  const { ctx } = audio, buffer = audio.bufs.get(midi);
+  if (!buffer) return;                                     // still being synthesised (first ~0.1 s only)
+  const src = ctx.createBufferSource(), g = ctx.createGain(), pan = ctx.createStereoPanner();
+  src.buffer = buffer;
+  g.gain.setValueAtTime(gain, when);
+  pan.pan.value = (s - 2.5) * 0.1;
+  src.connect(g); g.connect(pan); pan.connect(bus);
+  const prev = audio.last[s];                              // a string can only sound one note: choke the previous
+  if (prev && prev.end > when) { prev.g.gain.setTargetAtTime(0, when, 0.015); prev.src.stop(when + 0.12); }
+  src.start(when); src.stop(when + buffer.duration);
+  const v = { src, g, start: when, end: when + buffer.duration };
+  audio.last[s] = v; audio.voices.push(v);
+  src.onended = () => {
+    audio.voices.splice(audio.voices.indexOf(v), 1);
+    if (audio.last[s] === v) audio.last[s] = null;
+    src.disconnect(); g.disconnect(); pan.disconnect();
+  };
+}
+function playStroke(ev, when) {
+  const bus = ev.dir > 0 ? audio.down : audio.up;
+  for (const [s, dt] of strokeStrings(ev)) {
+    const gain = 0.2 * ev.vel * (ev.dir > 0 ? 1 : 0.85) * (0.9 + 0.2 * hash(ev.k * 7 + s));
+    playNote(s, TUNING[s] + ev.chord.frets[s], when + dt, gain, bus);
+  }
+}
+// song time ↔ AudioContext time: a fixed anchor (after draft b), latency-compensated so a strum is heard on the frame it is seen
+function anchorAudio() {
+  const { ctx } = audio;
+  audio.t0 = ctx.currentTime - (ctx.outputLatency || ctx.baseLatency || 0) + FRAME;
+  audio.s0 = song;
+}
+function scheduleAudio(song) {                             // look-ahead scheduler, driven by the visual beat clock
+  const { ctx } = audio;
+  if (!audio.on || !ctx || ctx.state !== 'running') return;
+  const lat = ctx.outputLatency || ctx.baseLatency || 0;
+  if (Math.abs(audio.t0 + (song - audio.s0) - (ctx.currentTime - lat + FRAME)) > 0.06) anchorAudio();   // re-anchor on drift
+  for (;;) {
+    const ev = eventAt(audio.nextK);
+    if (ev.t - song > LOOKAHEAD + lat) break;              // + lat: high-latency outputs (Bluetooth) would otherwise schedule in the past
+    audio.nextK++;
+    const when = audio.t0 + (ev.t - audio.s0);
+    if (when > ctx.currentTime - 0.02) playStroke(ev, Math.max(when, ctx.currentTime));
+  }
+}
+function audioWake() {                                     // (re)start output in sync with the current beat
+  const { ctx } = audio;
+  clearTimeout(audio.timer);
+  audio.nextK = firstEventFrom(song);
+  ctx.resume().then(() => {
+    if (!audio.on || !playing) return;
+    audio.nextK = firstEventFrom(song);
+    anchorAudio();
+    const t = ctx.currentTime;
+    audio.master.gain.cancelScheduledValues(t);
+    audio.master.gain.setTargetAtTime(MASTER, t, 0.05);
+  }, () => {});
+}
+function audioSleep() {                                    // drop not-yet-started notes, fade the tail, then suspend
+  const { ctx } = audio;
+  if (!ctx) return;
+  const t = ctx.currentTime;
+  for (const v of audio.voices.slice()) if (v.start > t) v.src.stop();
+  audio.master.gain.cancelScheduledValues(t);
+  audio.master.gain.setTargetAtTime(0, t, 0.08);
+  clearTimeout(audio.timer);
+  audio.timer = setTimeout(() => {                          // silence ringing tails too, so they don't resume on wake
+    if (ctx.state === 'running' && (!audio.on || !playing || document.hidden)) { for (const v of audio.voices.slice()) v.src.stop(); ctx.suspend(); }
+  }, 450);
+}
+
+/* ================= 8. Beat clock, loop & controls ================= */
+const mqReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+let reduced = mqReduce.matches;
+let playing = !reduced;
+let song = reduced ? 13.05 * SPB : 0;                     // still pose for reduced motion: mid sparkle moment
+let raf = 0, lastNow = 0;
+
+function frame(now) {
+  raf = 0;
+  if (!playing || document.hidden) return;
+  song += Math.min(0.1, Math.max(0, (now - lastNow) / 1000));   // clamp: no time jumps after stalls
+  lastNow = now;
+  render(song);
+  scheduleAudio(song);
+  raf = requestAnimationFrame(frame);
+}
+function startLoop() {
+  if (raf || !playing || document.hidden) return;
+  lastNow = performance.now();
+  raf = requestAnimationFrame(frame);
+}
+
+const playBtn = $('playBtn'), soundBtn = $('soundBtn'), playLbl = $('playLbl');
+function syncUI() {
+  const label = playing ? 'Пауза' : 'Играть';
+  playBtn.setAttribute('aria-label', label);
+  playLbl.textContent = label;
+  playBtn.classList.toggle('is-playing', playing);
+  soundBtn.setAttribute('aria-pressed', String(audio.on));
+}
+function togglePlay() {
+  playing = !playing;
+  if (playing) { startLoop(); if (audio.on) audioWake(); }
+  else { if (raf) cancelAnimationFrame(raf); raf = 0; if (audio.on) audioSleep(); }
+  syncUI();
+}
+function toggleSound() {
+  if (!audio.on) {
+    if (!audio.ctx && !initAudio()) { soundBtn.disabled = true; return; }
+    audio.on = true;
+    if (playing) audioWake(); else audioSleep();          // paused: keep the context suspended until Play
+  } else {
+    audio.on = false;
+    audioSleep();
+  }
+  syncUI();
+}
+playBtn.addEventListener('click', togglePlay);
+soundBtn.addEventListener('click', toggleSound);
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
+  const onControl = e.target instanceof Element && e.target.closest('button, input, select, textarea, a');
+  if (e.code === 'Space' && !onControl) { e.preventDefault(); togglePlay(); }
+  else if (e.code === 'KeyM') { e.preventDefault(); toggleSound(); }
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { if (raf) cancelAnimationFrame(raf); raf = 0; if (audio.on) audioSleep(); }
+  else if (playing) { startLoop(); if (audio.on) audioWake(); }
+});
+mqReduce.addEventListener('change', e => { reduced = e.matches; render(song); });
+window.addEventListener('resize', () => { layout(); render(song); });
+
+buildGuitar();
+buildBackground();
+buildTail();
+buildBirds();
+buildFx();
+layout();
+render(song);
+syncUI();
+startLoop();
+</script>
+</body>
+</html>
